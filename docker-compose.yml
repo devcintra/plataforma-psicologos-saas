@@ -1,0 +1,23 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+
+    volumes:
+      - .:/workspace
+
+    command: sleep infinity
+
+    ports:
+      - "3000:3000"
+
+  mysql:
+    image: mysql:8.0
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: psicologo_db
+
+    ports:
+      - "3306:3306"
