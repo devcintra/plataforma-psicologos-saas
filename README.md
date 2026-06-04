@@ -24,9 +24,7 @@ Facilitar o acesso à saúde mental e ajudar profissionais no início da carreir
 - Ariane Costa De Oliveira – 924118860
 - Felipe Cintra – 924105458
 - Gabriel Oliveira Gomes – 924112139
-- Julia Kelly Nancy da Silva Hidalgo Carrilho – 926115950
 - Mayara Ruth de Melo Alves – 924118778
-- Mayara Santos da Silva – 924104226
 - Myqueli Vitória de Jesus – 924107686
 - Thiago Izidro Pedreira – 924110325
 - Victor Roberto Merçon Soares – 923107411
