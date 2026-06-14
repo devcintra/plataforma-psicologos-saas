@@ -7,7 +7,7 @@ Esta pasta contém os arquivos relacionados ao banco de dados do projeto.
 ## Arquivos
 
 - script.sql: script de criação das tabelas e relacionamentos.
-- DER_Plataforma_Psicologos.png: diagrama entidade-relacionamento do sistema.
+- DER_Plataforma_Psicologos.jpeg: diagrama entidade-relacionamento do sistema.
 
 ## Tabelas
 
