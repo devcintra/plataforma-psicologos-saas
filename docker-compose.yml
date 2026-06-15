@@ -3,21 +3,43 @@ services:
     build:
       context: .
       dockerfile: .devcontainer/Dockerfile
-
     volumes:
       - .:/workspace
-
     command: sleep infinity
-
     ports:
       - "3000:3000"
+    depends_on:
+      - mysql
+      - mongodb
+      - redis
 
   mysql:
     image: mysql:8.0
-
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: psicologo_db
-
+      MYSQL_USER: app_user
+      MYSQL_PASSWORD: app_password
     ports:
       - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/script.sql:/docker-entrypoint-initdb.d/script.sql
+
+  mongodb:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_DATABASE: psicologo_nosql
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  mysql_data:
+  mongo_data:
