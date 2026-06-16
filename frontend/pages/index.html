@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsiConnect - Home</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo-nav">
+            <img src="../img/logo-cerebro.png" alt="Logo PsiConnect">
+        </div>
+        <nav class="menu">
+            <a href="index.html">Home</a>
+            <a href="#">Sobre</a>
+            <a href="#">Contato</a>
+            <a href="dashboard_pac.html" id="menu-meus-agendamentos" style="display: none; font-weight: 700;">Meus agendamentos</a>
+        </nav>
+        <div class="botoes-nav" id="container-botoes-nav">
+            <a href="login_pac.html" class="btn-nav-paciente">Entrar paciente</a>
+            <a href="login_psi.html" class="btn-nav-psicologo">Entrar psicólogo (a)</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="banner">
+            <div class="banner-titulo">
+                <img src="../img/logo-cerebro2.png" alt="Logo">
+                <h1>PsiConnect</h1>
+            </div>
+            <p>Conectando pessoas que buscam apoio com profissionais qualificados</p>
+        </div>
+
+        <section class="acoes-principais">
+            <a href="login_pac.html" id="btn-principal-busca" class="btn-buscar-psi">Buscar psicólogo (a)</a>
+            <a href="login_psi.html" id="btn-principal-psi" class="btn-sou-psi">Sou psicólogo (a)</a>
+        </section>
+
+        <section class="passos-container">
+            <div class="card-passo">
+                <img src="../img/lupa.png" alt="Busca">
+                <p>Busque profissionais</p>
+            </div>
+            <div class="card-passo">
+                <img src="../img/certo.png" alt="Comparar">
+                <p>Compare e escolha</p>
+            </div>
+            <div class="card-passo">
+                <img src="../img/agenda.png" alt="Agenda">
+                <p>Agende Online</p>
+            </div>
+        </section>
+
+        <section class="banner-profissionais">
+            <h3>Para profissionais</h3>
+            <ul>
+                <li>✓ Destaque para novos profissionais</li>
+                <li>✓ Agenda integrada e organizada</li>
+                <li>✓ Comece a atender rapidamente</li>
+            </ul>
+            <a href="cadastro_psi.html" class="btn-criar-perfil">Criar perfil profissional</a>
+        </section>
+    </main>
+
+    <script src="../js/home_auth.js"></script>
+</body>
+</html>
