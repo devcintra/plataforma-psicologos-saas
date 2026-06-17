@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsiConnect - Perfil do Profissional</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/perfil_psicologo.css">
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo-nav"><img src="../img/logo-cerebro.png" alt="Logo"></div>
+        <nav class="menu">
+            <a href="listagem-psicologos.html">Home</a>
+            <a href="#">Sobre</a>
+            <a href="#">Contato</a>
+        </nav>
+    </header>
+
+    <main class="profile-view-container">
+        
+        <section class="card-horizontal-psi header-profile-card">
+            <div class="card-left-thumb">
+                <img id="psi-foto" src="" alt="Foto de perfil" class="card-avatar-img">
+            </div>
+            <div class="card-center-content">
+                <h2 id="psi-nome-completo">...</h2>
+                <p class="crp-info"><strong>CRP:</strong> <span id="psi-crp">...</span></p>
+                
+                <span class="badge-status-plataforma">Novo na plataforma</span>
+                
+                <div class="profile-meta-row">
+                    <div class="rating-inline">
+                        <span class="star-icon">★</span> 
+                        <span class="rating-number" id="psi-avaliacao-num">0.0</span>
+                        <span class="total-reviews" id="psi-votos-total">(0 Avaliações)</span>
+                    </div>
+                    <div class="meta-stat-item" id="psi-visualizacoes"></div>
+                    <div class="meta-stat-item status-online" id="psi-status-resposta"></div>
+                </div>
+            </div>
+            <div class="card-right-pricing">
+                <div class="price-value" id="psi-preco">...</div>
+                <div class="price-subtext">Por sessão</div>
+            </div>
+        </section>
+
+        <div class="profile-two-columns-grid">
+            
+            <div class="profile-left-column">
+                
+                <section class="info-card-box" id="box-sobre-mim">
+                    <h3>Sobre mim</h3>
+                </section>
+
+                <section class="info-card-box">
+                    <h3>Avaliações</h3>
+                    
+                    <div class="rating-dashboard">
+                        <div class="rating-big-score">
+                            <span class="score-num" id="dash-score-num">0.0</span>
+                            <div class="stars-row">★★★★★</div>
+                        </div>
+                        <div class="rating-bars-container">
+                            <div class="rating-bar-row">
+                                <span>5.0</span>
+                                <div class="bar-bg"><div class="bar-fill" id="bar-5" style="width: 0%;"></div></div>
+                            </div>
+                            <div class="rating-bar-row">
+                                <span>4.0</span>
+                                <div class="bar-bg"><div class="bar-fill" id="bar-4" style="width: 0%;"></div></div>
+                            </div>
+                            <div class="rating-bar-row">
+                                <span>3.0</span>
+                                <div class="bar-bg"><div class="bar-fill" id="bar-3" style="width: 0%;"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="reviews-list" id="container-comentarios"></div>
+                </section>
+            </div>
+
+            <div class="profile-right-column">
+                
+            <section class="cta-sidebar-card">
+                <button class="btn-agendar" id="btn-agendar-perfil">Agendar consulta</button>
+                    <div class="cta-benefits-box">
+                        <p class="benefit-item">✓ Primeira consulta sem compromisso</p>
+                        <p class="benefit-item">✓ Cancelamento gratuito até 24h antes</p>
+                    </div>
+            </section>
+
+                <section class="info-card-box technical-details">
+                    <h3>Informações</h3>
+                    
+                    <div class="tech-info-item">
+                        <label>Modalidade</label>
+                        <p id="info-modalidade">Online e presencial</p>
+                    </div>
+
+                    <div class="tech-info-item">
+                        <label>Duração</label>
+                        <p id="info-duracao">50 minutos</p>
+                    </div>
+
+                    <div class="tech-info-item">
+                        <label>Idioma</label>
+                        <p id="info-idioma">Português</p>
+                    </div>
+
+                    <div class="tech-info-item">
+                        <label>Formação</label>
+                        <p id="info-formacao">...</p>
+                    </div>
+                </section>
+            </div>
+
+        </div>
+
+        <div class="profile-action-footer">
+            <button class="btn-footer-action btn-purple-solid">Salvar</button>
+            <button class="btn-footer-action btn-white-outline">Compartilhar</button>
+        </div>
+
+    </main>
+
+    <script src="../js/perfil_psicologo.js"></script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsiConnect - Encontre seu Psicólogo</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/listagem.css">
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo-nav"><img src="../img/logo-cerebro.png" alt="Logo"></div>
+        <nav class="menu">
+            <a href="index.html">Home</a>
+            <a href="#">Sobre</a>
+            <a href="#">Contato</a>
+        </nav>
+    </header>
+
+    <div class="search-area">
+        <div class="search-top-row">
+            <div class="search-input-wrapper">
+                <input type="text" id="input-nome" placeholder="Diana Silva">
+            </div>
+            <button class="btn-buscar" id="btn-buscar">Buscar</button>
+        </div>
+
+        <div class="filters-box">
+            <div class="filter-group">
+                <label>Especialidade</label>
+                <select id="select-especialidade">
+                    <option value="">Todas as especialidades</option>
+                    <option value="ansiedade">Ansiedade</option>
+                    <option value="depressao">Depressão</option>
+                    <option value="burnout">Burnout / Estresse</option>
+                    <option value="relacionamentos">Relacionamentos</option>
+                    <option value="infantil">Psicologia Infantil</option>
+                    <option value="autoestima">Autoestima</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Preço</label>
+                <select id="select-preco">
+                    <option value="">Todos os valores</option>
+                    <option value="0-100">Até R$ 100,00</option>
+                    <option value="101-150">R$ 101,00 - R$ 150,00</option>
+                    <option value="151-200">R$ 151,00 - R$ 200,00</option>
+                    <option value="201+">Acima de R$ 200,00</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Disponibilidade</label>
+                <select id="select-disponibilidade">
+                    <option value="">Qualquer período</option>
+                    <option value="manha">Manhã</option>
+                    <option value="tarde">Tarde</option>
+                    <option value="noite">Noite</option>
+                    <option value="fds">Finais de Semana</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Ordenar por</label>
+                <select id="select-ordenacao">
+                    <option value="avaliacao">Avaliação</option>
+                    <option value="nome">Nome</option>
+                    <option value="menor-preco">Menor preço</option>
+                </select>
+            </div>
+
+            <div class="filter-group" style="margin-left: auto;">
+                <label style="color: #5B2D8E; font-weight: 700;">Não sabe qual escolher?</label>
+                <a href="ia-triagem.html" class="btn-ia-triagem">
+                    ✨ Encontrar com IA
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <main class="list-wrapper">
+        <div id="lista-profissionais-container" class="lista-profissionais-container">
+            </div>
+    </main>
+
+    <script src="../js/lista-psicologos.js"></script>
+</body>
+</html>

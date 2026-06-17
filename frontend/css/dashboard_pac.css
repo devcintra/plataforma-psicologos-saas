@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Figtree:wght@300;400;500;600;700&display=swap');
+
+/* ==========================================================================
+   VARIÁVEIS PADRÃO (Sincronizadas com o seu Dashboard)
+   ========================================================================== */
+:root {
+  --plum: #7B3FA8;
+  --plum-d: #5A2980;
+  --border: #E4D8F5;
+  --white: #FFFFFF;
+  --sub: #7A6B90;
+}
+
+/* ==========================================================================
+   ESTILIZAÇÃO E ESTRUTURA DA NAVBAR DO PACIENTE
+   ========================================================================== */
+
+.navbar-dash {
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  height: 70px;
+  background-color: var(--white); 
+  border-bottom: 1px solid var(--border);
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; /* Distribui o menu para a esquerda e o usuário para a direita */
+  padding: 0 40px; 
+  z-index: 990;
+  font-family: 'Figtree', sans-serif;
+  box-sizing: border-box;
+}
+
+/* Garante o correto dimensionamento de todos os elementos filhos */
+.navbar-dash *, .navbar-dash *::before, .navbar-dash *::after {
+  box-sizing: border-box;
+}
+
+/* Lado Esquerdo da Barra (Logo + Links Principais) */
+.nav-left-group {
+  display: flex;
+  align-items: center;
+  gap: 32px; /* Espaçamento simétrico entre cada link */
+}
+
+/* Estilo do Título/Logo "PsiConnect" */
+.nav-logo-brand {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--plum) !important;
+  text-decoration: none;
+  margin-right: 12px;
+}
+
+/* Links Genéricos do Menu */
+.navbar-dash a { 
+  text-decoration: none; 
+  color: var(--sub); 
+  font-weight: 600; 
+  font-size: 15px; 
+  transition: color .2s ease; 
+}
+
+/* Efeito de passar o mouse e link ativo */
+.navbar-dash a:hover, 
+.navbar-dash a.active-link { 
+  color: var(--plum); 
+}
+
+/* Lado Direito da Barra (Saudação + Ação) */
+.nav-right-group {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Nome do Usuário Logado */
+.nav-username {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--plum-d);
+}
+
+/* Botão Sair Sutil (Clean & Moderno) */
+.btn-logout-nav {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: #D9534F; /* Tom avermelhado elegante para indicar saída */
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-family: 'Figtree', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-logout-nav:hover {
+  background: #FFF5F5;
+  border-color: #D9534F;
+  transform: translateY(-1px);
+}
+.interactive-star {
+  font-size: 24px;
+  color: var(--border) !important; /* Cor cinza/borda padrão quando inativa */
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.1s ease;
+  display: inline-block;
+  user-select: none;
+}
+
+/* Efeito sutil de crescimento e realce ao passar o mouse por cima */
+.interactive-star:hover {
+  transform: scale(1.2);
+  color: #FBBF24 !important; /* Destaque amarelo temporário */
+}
+
+/* Classe injetada via JavaScript para acender as estrelas selecionadas */
+.interactive-star.active {
+  color: var(--amber) !important; /* Usa o tom de âmbar/dourado oficial do seu tema */
+  text-shadow: 0 0 4px rgba(245, 158, 11, 0.3);
+}
+
+/* Alinhamento horizontal para a caixa onde as estrelas ficam contidas */
+.star-box {
+  display: flex !important;
+  gap: 6px;
+  margin-top: 6px;
+  margin-bottom: 8px;
+}

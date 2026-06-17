@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsiConnect - Cadastro Psicólogo (Passo 3)</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* Estilo local para o preview da imagem do CRP */
+        #crp-preview {
+            display: none;
+            max-width: 100%;
+            max-height: 180px;
+            margin: 15px auto 0 auto;
+            border-radius: var(--rs);
+            border: 1px solid var(--border);
+            object-fit: contain;
+        }
+        /* Classe ativa para destacar o card de checkbox quando clicado */
+        .card-checkbox.active {
+            border-color: var(--plum);
+            background-color: var(--plum-g);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo-nav"><img src="../img/logo-cerebro.png" alt="Logo"></div>
+        <nav class="menu">
+            <a href="index.html">Home</a>
+            <a href="#">Sobre</a>
+            <a href="#">Contato</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="banner">
+            <div class="banner-titulo">
+                <h1>PsiConnect</h1>
+                <img src="../img/logo-cerebro2.png" alt="Logo">
+            </div>
+            <p>Conectando pessoas que buscam apoio com profissionais qualificados</p>
+        </div>
+
+        <h2 class="titulo-pagina">Perfil Profissional</h2>
+        <p class="subtitle-pagina">Passo 3 de 3: Especialidades e Documentação</p>
+
+<form id="formPasso3" class="form-login" style="max-width: 520px;">
+
+    <div class="field">
+        <label>Áreas de Especialidade</label>
+
+        <div class="grid-especialidades">
+
+            <label class="card-checkbox">
+                <input type="checkbox" name="especialidade" value="ansiedade">
+                Ansiedade
+            </label>
+
+            <label class="card-checkbox">
+                <input type="checkbox" name="especialidade" value="depressao">
+                Depressão
+            </label>
+
+            <label class="card-checkbox">
+                <input type="checkbox" name="especialidade" value="casal">
+                Terapia de Casal
+            </label>
+
+            <label class="card-checkbox">
+                <input type="checkbox" name="especialidade" value="infantil">
+                Infantil
+            </label>
+
+        </div>
+    </div>
+        <div class="field">
+        <label for="valor">Valor da Consulta (R$)</label>
+        <input type="number" id="valor" placeholder="Ex: 120" min="0" step="any" required>
+    </div>
+    <div class="field">
+        <label>Disponibilidade</label>
+
+        <div class="grid-especialidades">
+
+            <label class="card-checkbox">
+                <input type="checkbox" name="disponibilidade" value="manha">
+                Manhã
+            </label>
+
+            <label class="card-checkbox">
+                <input type="checkbox" name="disponibilidade" value="tarde">
+                Tarde
+            </label>
+
+            <label class="card-checkbox">
+                <input type="checkbox" name="disponibilidade" value="noite">
+                Noite
+            </label>
+
+            <label class="card-checkbox">
+                <input type="checkbox" name="disponibilidade" value="fds">
+                Finais de Semana
+            </label>
+
+        </div>
+    </div>
+
+    <div class="field">
+        <label for="foto-input">Foto de Perfil</label>
+
+        <input
+            type="file"
+            id="foto-input"
+            accept="image/*"
+            required
+        >
+    </div>
+
+    <div class="field">
+        <label for="crp-input">
+            Comprovante do CRP
+        </label>
+
+        <input
+            type="file"
+            id="crp-input"
+            accept="image/*,application/pdf"
+            required
+        >
+    </div>
+
+    <button
+        type="submit"
+        class="btn-full"
+        id="btnCadastrar"
+        style="width:200px;"
+    >
+        Concluir Cadastro
+    </button>
+
+</form>
+    </main>
+
+    <footer class="rodape">
+        <a href="cadastro_psi_passo2.html" class="btn-voltar">Voltar</a>
+    </footer>
+
+    <script src="../js/cadastro_psi.js"></script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>PsiConnect – Painel da Psicóloga</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <style>
+        /* Estilização garantida para as especialidades no dashboard */
+        .sidebar-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .sidebar-tags .tag {
+            display: inline-block;
+            background-color: #F1EAFB; 
+            color: #7A6B90;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+        /* Estilo para destacar a abordagem no topo do perfil */
+        .profile-abordagem {
+            font-size: 14px;
+            color: #7A6B90;
+            font-weight: 700;
+            background: #F1EAFB;
+            padding: 4px 10px;
+            border-radius: 6px;
+            margin-top: 6px;
+            display: none; /* Controlado via JS */
+        }
+        /* Classes utilitárias para o sistema de navegação por menu/abas */
+        .menu-item { cursor: pointer; transition: background 0.2s; }
+        .menu-item.active { background: #F1EAFB; color: #5B2D8E; font-weight: 600; border-radius: 8px; }
+        .painel-aba { display: none; }
+        .painel-aba.active { display: block; }
+        
+        /* Grid para a listagem exclusiva de consultas */
+        .consultas-grid-exclusivo {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+  <div class="navbar">
+    <div class="nav-left">
+      <div class="logo">PsiConnect</div>
+      <div class="nav-welcome" id="nav-welcome">Olá, Carregando...</div>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" title="Notificações">🔔</button>
+      <button class="nav-icon-btn" id="btn-sair" title="Sair do Sistema">🚪</button>
+    </div>
+  </div>
+
+  <div class="dashboard-container">
+    
+    <div class="sidebar">
+      <div class="profile-card">
+        <img class="profile-avatar" id="dash-avatar" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=150&auto=format&fit=crop" alt="Foto de Perfil"/>
+        <div class="profile-info">
+          <div class="profile-name" id="dash-nome">Carregando...</div>
+          <div class="profile-crp" id="dash-crp">CRP --/-----</div>
+          <div class="profile-abordagem" id="dash-abordagem">Abordagem</div>
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="menu-label">Navegação</div>
+      <div class="menu-item active" id="menu-btn-inicio">
+        <span class="menu-icon">📊</span> Início / Configurar Agenda
+      </div>
+      <div class="menu-item" id="menu-btn-consultas">
+        <span class="menu-icon">📅</span> Consultas Agendadas
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="menu-label">Informações Clínicas</div>
+      <div class="sidebar-info-row">
+        <span class="info-label">Valor da consulta:</span>
+        <span class="info-value" id="sidebar-valor">R$ 0,00</span>
+      </div>
+      
+      <div style="margin-top: 14px;">
+        <span class="info-label" style="display:block; margin-bottom:4px;">Especialidades:</span>
+        <div class="sidebar-tags" id="spec-tags">
+          </div>
+      </div>
+
+      <div style="margin-top: 14px;">
+        <span class="info-label" style="display:block; margin-bottom:4px;">Sobre mim:</span>
+        <p id="dash-sobre" style="font-size: 13px; color: var(--muted); line-height: 1.4; text-align: justify;"></p>
+      </div>
+    </div>
+
+    <div class="main-content">
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-views">0</div>
+          <div class="stat-label">Visualizações do perfil</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-ag">0</div>
+          <div class="stat-label">Consultas marcadas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-rating">5.0</div>
+          <div class="stat-label">Nota de avaliação</div>
+        </div>
+      </div>
+
+      <div id="aba-gerenciar-agenda" class="painel-aba active">
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="agenda-header">
+            <div>
+              <div class="card-title">Agenda Disponível</div>
+              <p style="font-size: 13px; color: var(--muted); margin-top: 2px;">
+                Adicione horários sob demanda selecionando o dia da semana ideal para os seus pacientes.
+              </p>
+            </div>
+            <div class="agenda-actions">
+              <button class="btn-add" onclick="openModal()">
+                <span>+</span> Adicionar horário
+              </button>
+            </div>
+          </div>
+          
+          <div class="week-grid" id="week-grid" style="margin-top: 20px;"></div>
+        </div>
+        
+        <div class="card">
+          <div class="card-title">Dicas e informações importantes</div>
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px; font-size: 14px;">
+            <div class="dica-item"><span class="dica-icon">💡</span>Complete a sua biografia para atrair mais pacientes.</div>
+            <div class="dica-item"><span class="dica-icon">📸</span>Adicione uma foto de perfil nítida para passar maior segurança.</div>
+            <div class="dica-item"><span class="dica-icon">🕐</span>Horários entre as 18:00 e as 20:00 são os mais procurados na plataforma.</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="aba-consultas-recebidas" class="painel-aba">
+        <div class="card">
+          <div class="card-title">Histórico e Próximas Consultas Recebidas</div>
+          <p style="font-size: 13px; color: var(--muted); margin-top: 2px;">
+            Estes são os pacientes que realizaram agendamentos consigo através da página pública de perfil.
+          </p>
+          
+          <div class="consultas-grid-exclusivo" id="container-consultas-completo">
+             </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../js/dashboard.js"></script>
+</body>
+</html>

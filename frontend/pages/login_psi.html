@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsiConnect - Login Psicólogo(a)</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo-nav">
+            <img src="../img/logo-cerebro2.png" alt="Logo">
+        </div>
+        <nav class="menu">
+            <a href="index.html">Home</a>
+            <a href="#">Sobre</a>
+            <a href="#">Contato</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="banner">
+            <div class="banner-titulo">
+                <h1>PsiConnect</h1>
+                <img src="../img/logo-cerebro2.png" alt="Logo">
+            </div>
+            <p>
+                A plataforma ideal para expandir a sua rede de pacientes
+                e gerir a sua agenda profissional
+            </p>
+        </div>
+
+        <h2 class="titulo-pagina">Login profissional</h2>
+
+        <form id="formLogin" class="form-login">
+
+            <div class="field">
+                <label for="email">E-mail Profissional</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="seu@email.com"
+                    required
+                >
+            </div>
+
+            <div class="field">
+                <label for="senha">Senha</label>
+                <input
+                    type="password"
+                    id="senha"
+                    name="senha"
+                    placeholder="Digite sua senha"
+                    required
+                >
+            </div>
+
+            <div style="text-align: right; margin-bottom: 18px;">
+                <a href="esqueci_senha.html?tipo=psicologo" class="link-esqueci">
+    Esqueceu a sua senha de acesso?
+</a>
+            </div>
+
+            <button type="submit" class="btn-full" id="btnLogin">
+                Entrar no Painel
+            </button>
+
+            <p style="text-align: center; margin-top: 18px; font-size: .85rem; color: var(--sub);">
+                Ainda não faz parte?
+                <a href="cadastro_psi.html">Crie o seu perfil profissional</a>
+            </p>
+
+        </form>
+    </main>
+
+    <footer class="rodape">
+        <a href="index.html" class="btn-voltar">Voltar</a>
+    </footer>
+
+    <script src="../js/login_psi.js"></script>
+
+</body>
+</html>

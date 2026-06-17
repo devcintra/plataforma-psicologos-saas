@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsiConnect - Agendamento de Consulta</title>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="../css/agendamento.css">
+<style>
+        /* Ajuste do cabeçalho do perfil para seguir o padrão horizontal da imagem */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 16px; /* Espaçamento perfeito entre a foto e os textos */
+            text-align: left;
+        }
+
+        /* Foto de perfil compacta e arredondada */
+        .avatar-img {
+            width: 70px !important;
+            height: 70px !important;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #EAE0F7;
+            flex-shrink: 0;
+        }
+
+        /* Alinhamento dos blocos de texto internos */
+        .profile-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .profile-meta h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1E1030;
+            margin: 0;
+        }
+
+        .badge-crp {
+            font-size: 12px;
+            color: #7A6B90;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #7B3FA8; /* Roxo padrão do sistema */
+            margin-top: 2px;
+        }
+
+        /* Seletores dos botões de Dias da Semana */
+        .days-selector-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .btn-day-select {
+            background: #fff;
+            border: 1px solid #E4D8F5;
+            color: #1E1030;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: capitalize;
+        }
+        
+        .btn-day-select:hover {
+            background: #F2ECFA;
+            border-color: #7B3FA8;
+        }
+        
+        .btn-day-select.selected {
+            background: #7B3FA8;
+            color: #fff;
+            border-color: #7B3FA8;
+        }
+
+        /* Grid e botões de Horários */
+        .btn-hour {
+            background: #fff;
+            border: 1px solid #E4D8F5;
+            color: #1E1030;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
+        .btn-hour:hover {
+            background: #F2ECFA;
+            border-color: #7B3FA8;
+        }
+        
+        .btn-hour.selected {
+            background: #5A2980;
+            color: #fff;
+            border-color: #5A2980;
+        }
+        
+        .no-slots-msg {
+            grid-column: 1 / -1;
+            color: #7A6B90;
+            font-style: italic;
+            font-size: 14px;
+            padding: 15px 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo-nav"><img src="../img/logo-cerebro.png" alt="Logo"></div>
+        <nav class="menu">
+            <a href="index.html">Home</a>
+            <a href="#">Sobre</a>
+            <a href="#">Contato</a>
+            <span id="nav-paciente-welcome" class="user-welcome" style="color: #7A6B90;">Olá, Paciente!</span>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1 class="title">Agendamento de consulta</h1>
+
+        <div class="stepper">
+            <div class="step active"><span class="step-num">1</span> Escolher dia e horário ---------------------</div>
+            <div class="step"><span class="step-num">2</span> Confirmar dados ---------------------</div>
+            <div class="step"><span class="step-num">3</span> Concluído</div>
+        </div>
+
+        <div class="main-layout">
+            <div class="left-col">
+                <div class="card-box">
+                    <div class="profile-header">
+                        <img id="avatar-psi" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=150" alt="Psicólogo" class="avatar-img">
+                        <div class="profile-meta">
+                            <h2 id="nome-psi">Carregando Psicólogo...</h2>
+                            <p id="crp-psi" class="badge-crp">CRP --/-----</p>
+                            <p class="price" id="valor-psi">R$ 0,00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-box">
+                    <h3>1. Selecione o Dia da Semana</h3>
+                    <p style="font-size: 13px; color: #7A6B90; margin-bottom: 12px;">Escolha em qual dia deseja buscar atendimento:</p>
+                    
+                    <div class="days-selector-container" id="container-dias-semana">
+                        </div>
+
+                    <h3 style="margin-top: 24px;">2. Horários Disponíveis para o dia selecionado</h3>
+                    <div class="hours-grid" id="container-horarios-reais" style="margin-top: 12px;">
+                        <span class="no-slots-msg">Selecione um dia da semana acima para ver os horários.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-col">
+                <div class="card-box">
+                    <h3>Resumo do Agendamento</h3>
+                    <div class="summary-row">
+                        <p><strong>Dia/Horário Selecionado:</strong> <span id="resumo-horario">Nenhum horário selecionado</span></p>
+                        <p><strong>Modalidade:</strong> <span>Online (Google Meet)</span></p>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="total-box">
+                        <span class="total-lbl">Valor total</span>
+                        <span class="total-val" id="total-consulta">R$ 0,00</span>
+                    </div>
+                    <div class="badge-cancel">Cancelamento gratuito até 24h</div>
+                </div>
+
+                <div class="card-box">
+                    <h3>O que te traz até aqui (opcional)</h3>
+                    <textarea class="textarea-reason" id="motivo-consulta" placeholder="Se desejar, compartilhe brevemente o motivo da consulta..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions-footer">
+            <button class="btn-bottom back" onclick="window.history.back()">Voltar</button>
+            <button class="btn-bottom continue" id="btn-avancar-agendamento">Avançar</button>
+        </div>
+    </div>
+
+    <script src="../js/agendamento.js"></script>
+</body>
+</html>

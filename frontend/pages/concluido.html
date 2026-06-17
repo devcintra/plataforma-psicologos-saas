@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsiConnect - Consulta Agendada</title>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="../css/agendamento.css">
+    <style>
+        /* Estilos específicos para a tela de conclusão baseados na imagem */
+        .success-banner {
+            background: #fff;
+            border: 1px solid #E4D8F5;
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .success-icon {
+            width: 60px;
+            height: 60px;
+            background: #F2ECFA;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #7B3FA8;
+            margin-bottom: 16px;
+            border: 1px solid #E4D8F5;
+        }
+        .success-banner h2 {
+            font-size: 24px;
+            color: #7B3FA8;
+            margin: 0 0 8px 0;
+            font-weight: 700;
+        }
+        .success-banner p {
+            font-size: 16px;
+            color: #1E1030;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        /* Grid de Detalhes */
+        .grid-detalhes {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        /* Card de perfil horizontal interno */
+        .profile-mini-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border: 1px solid #E4D8F5;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            background: #fff;
+        }
+        .avatar-img {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #EAE0F7;
+        }
+        .profile-info h4 {
+            margin: 0;
+            font-size: 16px;
+            color: #1E1030;
+        }
+        .crp-tag {
+            font-size: 12px;
+            color: #7A6B90;
+            margin: 2px 0;
+        }
+        .badge-plataforma {
+            display: inline-block;
+            font-size: 10px;
+            background: #F7F3FC;
+            color: #7B3FA8;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 600;
+            border: 1px solid #E4D8F5;
+        }
+
+        /* Infos da Consulta */
+        .info-consulta-box {
+            border: 1px solid #E4D8F5;
+            border-radius: 12px;
+            padding: 20px;
+            background: #fff;
+        }
+        .info-row {
+            margin-bottom: 12px;
+        }
+        .info-row label {
+            font-size: 12px;
+            color: #7A6B90;
+            text-transform: uppercase;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .info-row p {
+            margin: 0;
+            font-size: 14px;
+            color: #1E1030;
+            font-weight: 500;
+        }
+        .price-tag {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1E1030;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #F2ECFA;
+        }
+
+        /* Sub-cards da coluna direita */
+        .sub-card {
+            border: 1px solid #E4D8F5;
+            border-radius: 12px;
+            padding: 20px;
+            background: #fff;
+            margin-bottom: 16px;
+        }
+        .sub-card h4 {
+            margin: 0 0 12px 0;
+            font-size: 16px;
+            color: #1E1030;
+        }
+        .sub-card ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 14px;
+            color: #1E1030;
+            line-height: 1.6;
+        }
+        .btn-calendario-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .btn-cal {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #E4D8F5;
+            background: #fff;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1E1030;
+            cursor: pointer;
+            text-align: center;
+            transition: background 0.2s;
+        }
+        .btn-cal:hover {
+            background: #F7F3FC;
+        }
+
+        /* Card unificado de política de cancelamento */
+        .politica-card {
+            border: 1px solid #E4D8F5;
+            border-radius: 12px;
+            padding: 16px 20px;
+            background: #fff;
+            margin-bottom: 24px;
+        }
+        .politica-card h4 {
+            margin: 0 0 4px 0;
+            font-size: 14px;
+            color: #1E1030;
+        }
+        .politica-card p {
+            margin: 0;
+            font-size: 13px;
+            color: #7A6B90;
+            line-height: 1.4;
+        }
+
+        /* Rodapé de Dúvidas e Ação */
+        .footer-concluido {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-top: 32px;
+        }
+        .btn-duvida {
+            padding: 12px 20px;
+            border: 1px solid #E4D8F5;
+            background: #fff;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 13px;
+            color: #1E1030;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-duvida span {
+            display: block;
+            font-size: 11px;
+            color: #7A6B90;
+        }
+        .btn-duvida:hover {
+            background: #F7F3FC;
+        }
+        .btn-principal-dashboard {
+            background: #7B3FA8;
+            color: #fff;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-principal-dashboard:hover {
+            background: #66328C;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo-nav"><img src="../img/logo-cerebro.png" alt="Logo"></div>
+        <nav class="menu">
+            <a href="index.html">Home</a>
+            <a href="#">Sobre</a>
+            <a href="#">Contato</a>
+            <span id="nav-paciente-welcome" class="user-welcome" style="color: #7A6B90;">Olá, Paciente!</span>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="stepper" style="margin-top: 20px;">
+            <div class="step"><span class="step-num">1</span> Escolher dia e horário ---------------------</div>
+            <div class="step"><span class="step-num">2</span> Confirmar dados e pagamento ---------------------</div>
+            <div class="step active"><span class="step-num">3</span> Concluído</div>
+        </div>
+
+        <div class="success-banner">
+            <div class="success-icon">✓</div>
+            <h2>Consulta agendada!</h2>
+            <p>Sua consulta foi agendada com sucesso</p>
+        </div>
+
+        <div class="grid-detalhes">
+            <div class="col-esq">
+                <h3 style="font-size: 16px; margin-bottom: 12px; color: #1E1030;">Detalhes da sua consulta</h3>
+                
+                <div class="profile-mini-card">
+                    <img id="concluido-avatar-psi" src="" alt="Psicólogo" class="avatar-img">
+                    <div class="profile-info">
+                        <h4 id="concluido-nome-psi">Carregando...</h4>
+                        <p id="concluido-crp-psi" class="crp-tag">CRP --/-----</p>
+                        <span class="badge-plataforma">Novo na plataforma</span>
+                    </div>
+                </div>
+
+                <div class="info-consulta-box">
+                    <div class="info-row">
+                        <label>Data e Horário</label>
+                        <p id="concluido-data-hora">Não especificado</p>
+                    </div>
+                    <div class="info-row">
+                        <label>Modalidade</label>
+                        <p>Online (Google Meet)</p>
+                    </div>
+                    <div class="price-tag" id="concluido-preco">
+                        R$ 0,00 <span style="font-size: 13px; font-weight: 400; color: #7A6B90; margin-left: 4px;" id="concluido-metodo">Pago via ...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-dir" style="margin-top: 31px;">
+                <div class="sub-card">
+                    <h4>Confirmação enviada</h4>
+                    <p style="font-size: 14px; margin: 0 0 4px 0; color: #1E1030;">Email enviado para: <strong id="concluido-email-pac">...</strong></p>
+                    <p style="font-size: 14px; margin: 0 0 12px 0; color: #1E1030;">SMS enviado para: <strong id="concluido-tel-pac">...</strong></p>
+                    <p style="font-size: 13px; color: #7A6B90; margin-bottom: 8px;">Adicione ao seu calendário:</p>
+                    <div class="btn-calendario-group">
+                        <button class="btn-cal">Google calendario</button>
+                        <button class="btn-cal">iCal</button>
+                    </div>
+                </div>
+
+                <div class="sub-card">
+                    <h4>Lembretes</h4>
+                    <ul>
+                        <li>-24h antes da consulta</li>
+                        <li>-1h antes da consulta</li>
+                        <li>-15 min antes (com link da sala)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="politica-card">
+            <h4>Política de cancelamento</h4>
+            <p><strong>Cancelamento gratuito até 24h antes:</strong> Você pode cancelar ou reagendar sua consulta sem custo até 24h antes do horário marcado. Cancelamentos com menos de 24h de antecedência não têm direito a reembolso.</p>
+        </div>
+
+        <div class="footer-concluido">
+            <div style="display: flex; gap: 12px;">
+                <button class="btn-duvida">
+                    <strong>Fale com <span id="btn-nome-psi-curto" style="display:inline; font-size: inherit; color: inherit; font-weight: inherit;">o profissional</span></strong>
+                    <span>Envie mensagem para sua psicóloga</span>
+                </button>
+                <button class="btn-duvida">
+                    <strong>Fale com o suporte</strong>
+                    <span>Envie mensagem para o suporte</span>
+                </button>
+            </div>
+            <button class="btn-principal-dashboard" id="btn-ir-dashboard">Acessar meus agendamentos</button>
+        </div>
+    </div>
+
+    <script src="../js/concluido.js"></script>
+</body>
+</html>

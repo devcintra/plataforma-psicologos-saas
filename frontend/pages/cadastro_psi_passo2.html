@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsiConnect - Cadastro Psicólogo (Passo 2)</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo-nav"><img src="../img/logo-cerebro.png" alt="Logo"></div>
+        <nav class="menu">
+            <a href="index.html">Home</a>
+            <a href="#">Sobre</a>
+            <a href="#">Contato</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="banner">
+            <div class="banner-titulo">
+                <h1>PsiConnect</h1>
+                <img src="../img/logo-cerebro2.png" alt="Logo">
+            </div>
+            <p>Conectando pessoas que buscam apoio com profissionais qualificados</p>
+        </div>
+
+        <h2 class="titulo-pagina">Perfil Profissional</h2>
+        <p class="subtitle-pagina">Passo 2 de 3: Formação e Biografia</p>
+
+        <form id="formPasso2" class="form-login" style="max-width: 520px;">
+    <div class="field">
+    <label for="formacao">Formação Acadêmica / Especializações</label>
+    <input type="text" id="formacao" placeholder="Ex: Graduação em Psicologia (USP)" required>
+</div>
+
+<div class="field">
+    <label for="abordagem">Abordagem terapêutica <span>*</span></label>
+    <select id="abordagem" required>
+        <option value="" disabled selected>Selecione...</option>
+        <option value="TCC">TCC – Terapia Cognitivo-Comportamental</option>
+        <option value="Psicanálise">Psicanálise</option>
+        <option value="Humanista / Gestalt">Humanista / Gestalt</option>
+        <option value="EMDR">EMDR</option>
+        <option value="Sistêmica">Sistêmica</option>
+        <option value="DBT">DBT</option>
+        <option value="ACT">ACT</option>
+    </select>
+</div>
+
+<div class="field">
+    <label for="sobre">Sobre você / Apresentação Clínica</label>
+    <textarea id="sobre" rows="6" placeholder="Escreva aqui sobre sua experiência..." required></textarea>
+</div>
+
+    <button type="submit" class="btn-full" style="width:180px;">
+        Avançar
+    </button>
+
+</form>
+    </main>
+
+    <footer class="rodape">
+        <a href="cadastro_psi_passo.html" class="btn-voltar">Voltar</a>
+    </footer>
+    <script src="../js/cadastro_psi.js"></script>
+</body>
+</html>

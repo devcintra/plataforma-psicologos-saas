@@ -1,0 +1,387 @@
+/* ==========================================================================
+   ESTILOS DA TELA DE LISTAGEM - ACESSÓRIO DAS CORES DE HOME.CSS
+   ========================================================================== */
+
+:root {
+    --plum:        #5B2D8E;
+    --plum-dark:   #3D1A6E;
+    --plum-mid:    #7B4FB8;
+    --plum-light:  #C9B3E8;
+    --plum-ghost:  #F0EAF9;
+    --rose:        #E8637A;
+    --bg:          #FAF8FD;
+    --white:       #FFFFFF;
+    --text:        #1A1028;
+    --muted:       #7A6D8A;
+    --border:      #DDD4EE;
+    --radius:      14px;
+    --radius-sm:   8px;
+    --shadow:      0 4px 24px rgba(91,45,142,.10);
+    --shadow-lg:   0 12px 48px rgba(91,45,142,.18);
+}
+
+.search-area {
+    max-width: 1100px;
+    margin: 40px auto 20px auto;
+    padding: 0 20px;
+    font-family: 'Figtree', sans-serif;
+}
+
+/* Estrutura da barra de pesquisa */
+.search-top-row {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 30px;
+    align-items: center;
+}
+
+.search-input-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.search-input-wrapper input {
+    width: 100%;
+    padding: 14px 20px 14px 50px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 16px;
+    color: var(--text);
+    outline: none;
+    background: var(--white);
+    font-family: 'Figtree', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input-wrapper input:focus {
+    border-color: var(--plum);
+    box-shadow: 0 0 0 3px var(--plum-ghost);
+}
+
+/* Placeholder sutil */
+.search-input-wrapper input::placeholder {
+    color: var(--plum-light);
+}
+
+/* Ícone de lupa */
+.search-input-wrapper::before {
+    content: "🔍";
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    z-index: 2;
+    opacity: 0.7;
+}
+
+.btn-buscar {
+    background-color: var(--plum);
+    color: var(--white);
+    border: none;
+    padding: 14px 45px;
+    border-radius: var(--radius);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Figtree', sans-serif;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-buscar:hover {
+    background-color: var(--plum-dark);
+}
+
+.btn-buscar:active {
+    transform: scale(0.98);
+}
+
+/* Caixa de Filtros Avançados */
+.filters-box {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    display: flex;
+    gap: 20px;
+    box-shadow: var(--shadow);
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.filter-group label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filter-group select {
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    background-color: var(--white);
+    font-family: 'Figtree', sans-serif;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.filter-group select:focus {
+    border-color: var(--plum);
+}
+
+/* ==========================================================================
+   CONTAINER E CARDS HORIZONTAIS DOS PSICÓLOGOS
+   ========================================================================== */
+
+.professionals-list-section {
+    max-width: 1100px;
+    margin: 0 auto 60px auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    font-family: 'Figtree', sans-serif;
+}
+
+.card-horizontal-psi {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    display: flex;
+    position: relative;
+    gap: 24px;
+    box-shadow: var(--shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card-horizontal-psi:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Lado Esquerdo: Avatar */
+.card-left-thumb .card-avatar-img {
+    width: 110px;
+    height: 110px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    background-color: var(--bg);
+}
+
+/* Centro: Textos e Informações básicas */
+.card-center-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.card-center-content h2 {
+    margin: 0;
+    font-size: 20px;
+    color: var(--text);
+    font-weight: 700;
+}
+
+.crp-info {
+    margin: 0;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+/* Selo de Destaque / Novo */
+.badge-status-plataforma {
+    align-self: flex-start;
+    background-color: var(--plum-ghost);
+    color: var(--plum);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin: 4px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* Linha com Nota, Avaliações e Visualizações */
+.profile-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: auto;
+    font-size: 12px;
+}
+
+.rating-inline {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.star-icon {
+    color: #FFC107;
+    font-size: 14px;
+}
+
+.rating-number {
+    font-weight: 700;
+    color: var(--text);
+}
+
+.total-reviews {
+    color: var(--muted);
+}
+
+.meta-stat-item {
+    color: var(--muted);
+}
+
+/* Status Online / Resposta */
+.status-online {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #4CAF50;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* Lado Direito: Preço */
+.card-right-pricing {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-width: 140px;
+}
+
+.price-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--plum-dark);
+}
+
+.price-subtext {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+/* Caixa interna contendo as especialidades e modalidades */
+.inner-details-box {
+    border: 1px solid var(--plum-light);
+    background-color: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    max-width: 320px;
+    margin-top: 4px;
+}
+
+.inner-details-box p {
+    margin: 0;
+    font-size: 11px;
+    color: var(--text);
+    line-height: 1.5;
+}
+
+/* Bloco de botões inferiores esquerdo */
+.actions-row-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.btn-horizontal-roxo {
+    background-color: var(--plum);
+    color: var(--white);
+    border: none;
+    padding: 10px 35px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-horizontal-roxo:hover {
+    background-color: var(--plum-dark);
+}
+
+.btn-horizontal-outline {
+    background-color: transparent;
+    color: var(--plum);
+    border: 1px solid var(--plum);
+    padding: 10px 35px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-horizontal-outline:hover {
+    background-color: var(--plum-ghost);
+    color: var(--plum-dark);
+}
+.btn-ia-triagem {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--plum) 0%, #9D5CD3 100%);
+    color: var(--white) !important;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 12px rgba(91, 45, 142, 0.2);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    height: 40px; /* Garante o mesmo alinhamento vertical dos selects */
+    box-sizing: border-box;
+}
+
+.btn-ia-triagem:hover {
+    background: linear-gradient(135deg, #3D1A6E 0%, var(--plum) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(91, 45, 142, 0.35);
+}
+
+/* Força o comportamento flexível correto para acomodar o botão à direita */
+.filters-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: flex-end;
+    width: 100%;
+}
+
+/* Ajuste responsivo para telas menores */
+@media (max-width: 768px) {
+    .filters-box .filter-group {
+        flex: 1 1 calc(50% - 15px);
+    }
+    .filters-box .filter-group:last-child {
+        margin-left: 0 !important;
+        flex: 1 1 100%;
+    }
+    .btn-ia-triagem {
+        width: 100%;
+    }
+}

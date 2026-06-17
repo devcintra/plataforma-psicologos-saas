@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsiConnect - Cadastro Psicólogo (Passo 1)</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo-nav"><img src="../img/logo-cerebro.png" alt="Logo"></div>
+        <nav class="menu">
+            <a href="index.html">Home</a>
+            <a href="#">Sobre</a>
+            <a href="#">Contato</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="banner">
+            <div class="banner-titulo">
+                <h1>PsiConnect</h1>
+                <img src="../img/logo-cerebro2.png" alt="Logo">
+            </div>
+            <p>Conectando pessoas que buscam apoio com profissionais qualificados</p>
+        </div>
+
+        <h2 class="titulo-pagina">Perfil Profissional</h2>
+        <p class="subtitle-pagina">Passo 1 de 3: Informações básicas</p>
+
+    <form id="formPasso1" class="form-login" style="max-width: 520px;">
+
+    <div class="form-row">
+        <div class="field">
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" placeholder="Seu nome" required>
+        </div>
+
+        <div class="field">
+            <label for="sobrenome">Sobrenome</label>
+            <input type="text" id="sobrenome" placeholder="Seu sobrenome" required>
+        </div>
+    </div>
+
+    <div class="field">
+        <label for="crp">Registro CRP</label>
+        <input type="text" id="crp" maxlength="8" placeholder="00/00000" required>
+    </div>
+
+    <div class="field">
+        <label for="telefone">Telefone</label>
+        <input type="tel" id="telefone" maxlength="15" placeholder="(00) 00000-0000" required>
+    </div>
+
+    <div class="field">
+        <label for="email">E-mail Profissional</label>
+        <input type="email" id="email" placeholder="nome@exemplo.com" required>
+    </div>
+
+    <div class="field">
+        <label for="cep">CEP <span>*</span></label>
+        <input type="text" id="cep" maxlength="9" placeholder="00000-000" required>
+    </div>
+
+    <div class="form-row">
+        <div class="field">
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" minlength="6" placeholder="Mínimo 6 caracteres" required>
+        </div>
+
+        <div class="field">
+            <label for="conf-senha">Confirmar Senha</label>
+            <input type="password" id="conf-senha" minlength="6" placeholder="Repita a senha" required>
+        </div>
+    </div>
+    <p style="text-align: center; margin-top: 18px; font-size: .85rem; color: var(--sub);">
+                Já possui login?
+                <a href="login_psi.html">Entrar na conta</a>
+            </p>
+    <button type="submit" class="btn-full" style="width:180px;">
+        Avançar
+    </button>
+
+</form>
+    </main>
+
+    <footer class="rodape">
+        <a href="index.html" class="btn-voltar">Voltar</a>
+    </footer>
+    <script src="../js/cadastro_psi.js"></script>
+</body>
+</html>

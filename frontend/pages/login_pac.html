@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsiConnect - Login Paciente</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo-nav"><img src="../img/logo-cerebro2.png" alt="Logo"></div>
+        <nav class="menu">
+            <a href="index.html">Home</a>
+            <a href="#">Sobre</a>
+            <a href="#">Contato</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="banner">
+            <div class="banner-titulo">
+                <h1>PsiConnect</h1>
+                <img src="../img/logo-cerebro2.png" alt="Logo">
+            </div>
+            <p>Conectando pessoas que buscam apoio com profissionais qualificados</p>
+        </div>
+
+        <h2 class="titulo-pagina">Login paciente</h2>
+
+        <form action="#" method="POST" class="form-login">
+            <div class="field">
+                <label for="email">E-Mail</label>
+                <input type="email" id="email" name="email" placeholder="Seu e-mail cadastrado" required>
+            </div>
+
+            <div class="field">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" placeholder="Sua senha" required>
+            </div>
+
+            <div style="text-align: right; margin-bottom: 18px;">
+                <a href="esqueci_senha.html?tipo=paciente" class="link-esqueci">
+    Esqueci minha senha?
+</a>
+            </div>
+
+            <button type="submit" class="btn-full">Entrar</button>
+
+            <p style="text-align: center; margin-top: 18px; font-size: .85rem; color: var(--sub);">
+                Não tem conta? <a href="cadastro_pac.html">Cadastre-se como paciente</a>
+            </p>
+        </form>
+    </main>
+    <footer class="rodape">
+        <a href="index.html" class="btn-voltar">Voltar</a>
+    </footer>
+
+    <script src="../js/login_pac.js"></script> 
+</body>
+</html>
+
+</body>
+</html>

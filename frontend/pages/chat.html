@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsiConnect – Chat de Atendimento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <style>
+        :root {
+            --plum: #7A6B90;
+            --plum-light: #F1EAFB;
+            --text: #1E1030;
+            --sub: #5C4E70;
+            --border: #EAE0F7;
+            --bg: #FAF8FD;
+            --white: #ffffff;
+        }
+        body {
+            font-family: 'Figtree', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            flex-grow: 1;
+            height: calc(100vh - 70px);
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            background: var(--white);
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+        }
+        /* Lateral */
+        .chat-sidebar {
+            background: var(--bg);
+            border-right: 1px solid var(--border);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .profile-chat-card {
+            text-align: center;
+            padding: 20px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+        .chat-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 12px;
+            border: 2px solid var(--plum-light);
+        }
+        /* Área das mensagens */
+        .chat-main {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: #fff;
+        }
+        .chat-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .messages-box {
+            flex-grow: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background: #FCFAFF;
+        }
+        /* Balões de Mensagem */
+        .msg-row {
+            display: flex;
+            width: 100%;
+        }
+        .msg-row.sent { justify-content: flex-end; }
+        .msg-row.received { justify-content: flex-start; }
+
+        .msg-bubble {
+            max-width: 60%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            position: relative;
+        }
+        .msg-row.sent .msg-bubble {
+            background: var(--plum);
+            color: var(--white);
+            border-bottom-right-radius: 4px;
+        }
+        .msg-row.received .msg-bubble {
+            background: var(--plum-light);
+            color: var(--text);
+            border-bottom-left-radius: 4px;
+        }
+        .msg-time {
+            font-size: 10px;
+            display: block;
+            margin-top: 4px;
+            text-align: right;
+            opacity: 0.7;
+        }
+        /* Rodapé de input */
+        .chat-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            background: var(--white);
+        }
+        .chat-input {
+            flex-grow: 1;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 14px 20px;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            background: var(--bg);
+        }
+        .chat-input:focus { border-color: var(--plum); background: #fff; }
+        .btn-send {
+            background: var(--plum);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .btn-back-chat {
+            background: transparent;
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            color: var(--sub);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar-dash" style="padding: 15px 24px; background: #fff; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-weight: 700; color: var(--text); font-size: 18px;">PsiConnect Chat</span>
+        <button class="btn-back-chat" id="btn-voltar-painel">← Voltar ao Painel</button>
+    </header>
+
+    <div class="chat-container">
+        <div class="chat-sidebar">
+            <div class="profile-chat-card">
+                <img id="interacao-avatar" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=150" class="chat-avatar" alt="Avatar">
+                <h3 id="interacao-nome" style="margin: 0; font-size: 16px; color: var(--text);">Carregando...</h3>
+                <p id="interacao-detalhe" style="margin: 4px 0 0 0; font-size: 12px; color: var(--sub);">Consulta Vinculada</p>
+            </div>
+            
+            <div style="font-size: 13px; color: var(--sub); background: var(--white); padding: 16px; border-radius: 8px; border: 1px solid var(--border);">
+                <strong>Aviso de privacidade:</strong> Este chat utiliza criptografia local temporária para a segurança dos dados compartilhados durante a sessão.
+            </div>
+        </div>
+
+        <div class="chat-main">
+            <div class="chat-header">
+                <div>
+                    <h2 style="margin: 0; font-size: 16px; color: var(--text);">Canal de Mensagens Diretas</h2>
+                    <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--sub);" id="txt-status-conexao">Conexão local segura</p>
+                </div>
+            </div>
+
+            <div class="messages-box" id="caixa-mensagens-chat">
+                </div>
+
+            <div class="chat-footer">
+                <input type="text" class="chat-input" id="input-mensagem-texto" placeholder="Digite uma mensagem para enviar..." autocomplete="off">
+                <button class="btn-send" id="btn-enviar-mensagem">➔</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/chat.js"></script>
+</body>
+</html>
