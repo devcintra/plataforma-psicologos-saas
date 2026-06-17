@@ -1,0 +1,14 @@
+@startuml
+title DIAGRAMA C4 — NÍVEL CONTEXTO (C1)
+
+skinparam defaultTextAlignment center
+
+actor Psicologo as "Psicólogo"
+actor Paciente
+
+rectangle "Plataforma SaaS de atendimento" as Plataforma
+
+Psicologo --> Plataforma : Utiliza para realizar atendimentos
+Plataforma --> Paciente : Disponibiliza serviços e acompanhamento
+
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+title DIAGRAMA C4 — NÍVEL COMPONENTE (C3)
+
+skinparam defaultTextAlignment center
+
+actor Paciente
+actor Psicologa as "Psicóloga"
+
+rectangle "Backend" as Backend
+rectangle "Rotas da API" as Rotas
+rectangle "Regras Sistema" as Regras
+rectangle "Conexão Dados" as Conexao
+
+database "MySQL" as MySQL
+database "MongoDB" as MongoDB
+database "Redis" as Redis
+
+Paciente --> Backend
+Psicologa --> Backend
+
+Backend --> Rotas
+Backend --> Regras
+Backend --> Conexao
+
+Conexao --> MySQL
+Conexao --> MongoDB
+Conexao --> Redis
+
+@enduml
