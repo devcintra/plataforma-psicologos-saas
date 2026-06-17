@@ -1,0 +1,40 @@
+{
+  "_id": "usr002",
+  "nome": "Dra. Maria Souza",
+  "email": "maria@email.com",
+  "senha": "hash_da_senha",
+  "telefone": "(11)98888-8888",
+  "tipo_usuario": "psicologo",
+  "data_cadastro": "2026-06-17T10:30:00Z",
+
+  "psicologo": {
+    "id_psicologo": "psi001",
+    "crp": "06/123456",
+    "valor_consulta": 180.00,
+    "descricao": "Especialista em ansiedade.",
+
+    "especialidades": [
+      {
+        "id": "esp001",
+        "nome": "Terapia Cognitivo-Comportamental"
+      },
+      {
+        "id": "esp002",
+        "nome": "Ansiedade"
+      }
+    ],
+
+    "disponibilidade": [
+      {
+        "dia_semana": "Segunda",
+        "hora_inicio": "08:00",
+        "hora_fim": "12:00"
+      },
+      {
+        "dia_semana": "Quarta",
+        "hora_inicio": "14:00",
+        "hora_fim": "18:00"
+      }
+    ]
+  }
+}
