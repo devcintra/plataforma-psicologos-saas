@@ -1,8 +1,10 @@
 require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const { conectarBanco } = require('./config/database');
-require('./models'); // carrega todos os models e associações
+
+require('./models');
 
 const routes = require('./routes');
 
@@ -12,14 +14,25 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req, res) => res.json({ mensagem: '🧠 API Psicologia Online funcionando!' }));
+app.get('/', (req, res) => {
+  res.json({ mensagem: '🧠 API Psicologia Online funcionando!' });
+});
 
 app.use('/api', routes);
 
-app.use((req, res) => res.status(404).json({ erro: 'Rota não encontrada.' }));
+app.use((req, res) => {
+  res.status(404).json({ erro: 'Rota não encontrada.' });
+});
 
-conectarBanco().then(() => {
+const iniciarServidor = () => {
   app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
   });
-});
+};
+
+conectarBanco()
+  .then(() => iniciarServidor())
+  .catch((err) => {
+    console.error('❌ Erro ao conectar no banco:', err.message);
+    process.exit(1);
+  });
