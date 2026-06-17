@@ -1,0 +1,23 @@
+{
+  "_id": "con001",
+
+  "paciente": {
+    "id": "usr001",
+    "nome": "João Silva"
+  },
+
+  "psicologo": {
+    "id": "usr002",
+    "nome": "Dra. Maria Souza",
+    "crp": "06/123456"
+  },
+
+  "data_consulta": "2026-07-10",
+  "horario": "15:00",
+  "status": "Confirmada",
+
+  "avaliacao": {
+    "nota": 5,
+    "comentario": "Excelente atendimento."
+  }
+}

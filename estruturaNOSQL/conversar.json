@@ -1,0 +1,28 @@
+{
+  "_id": "conv001",
+
+  "paciente": {
+    "id": "usr001",
+    "nome": "João Silva"
+  },
+
+  "psicologo": {
+    "id": "usr002",
+    "nome": "Dra. Maria Souza"
+  },
+
+  "mensagens": [
+    {
+      "id": "msg001",
+      "autor": "paciente",
+      "texto": "Olá doutora.",
+      "data_envio": "2026-06-20T09:10:00Z"
+    },
+    {
+      "id": "msg002",
+      "autor": "psicologo",
+      "texto": "Bom dia! Como posso ajudar?",
+      "data_envio": "2026-06-20T09:12:00Z"
+    }
+  ]
+}

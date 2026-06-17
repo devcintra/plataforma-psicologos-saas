@@ -1,0 +1,34 @@
+usuarios
+│
+├── _id
+├── nome
+├── email
+├── senha
+├── telefone
+├── tipo_usuario
+├── data_cadastro
+├── paciente
+│   └── data_nascimento
+└── psicologo
+    ├── crp
+    ├── valor_consulta
+    ├── descricao
+    ├── especialidades[]
+    └── disponibilidade[]
+
+consultas
+│
+├── _id
+├── paciente
+├── psicologo
+├── data_consulta
+├── horario
+├── status
+└── avaliacao
+
+conversas
+│
+├── _id
+├── paciente
+├── psicologo
+└── mensagens[]
