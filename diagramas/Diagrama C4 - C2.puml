@@ -1,0 +1,22 @@
+@startuml
+title DIAGRAMA C4 — NÍVEL CONTAINER (C2)
+
+skinparam defaultTextAlignment center
+
+actor Paciente
+actor Psicologo as "Psicólogo"
+
+rectangle "Front-end" as Frontend
+rectangle "API / Backend" as Backend
+database "MySQL" as DB
+rectangle "Pagamento Funcional" as Pagamento
+
+Paciente --> Frontend
+Psicologo --> Frontend
+
+Frontend --> Backend
+
+Backend --> DB
+Backend --> Pagamento
+
+@enduml
