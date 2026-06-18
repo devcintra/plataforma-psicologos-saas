@@ -4,10 +4,15 @@ const { Psicologo, Usuario, Especialidade, Disponibilidade } = require('../model
 const listar = async (req, res) => {
   try {
     const psicologos = await Psicologo.findAll({
-      include: [
-        { model: Usuario, attributes: ['nome', 'email', 'telefone'] },
-        { model: Especialidade, through: { attributes: [] } },
-      ],
+    include: [
+
+    { model: Usuario },
+
+ { model: Especialidade },
+
+ { model: Disponibilidade }
+
+]
     });
     res.json(psicologos);
   } catch (erro) {

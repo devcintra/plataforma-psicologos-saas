@@ -10,9 +10,8 @@ const agendar = async (req, res) => {
     if (!paciente) return res.status(403).json({ erro: 'Apenas pacientes podem agendar consultas.' });
 
     // Verifica conflito de horário
-    const conflito = await Consulta.findOne({
-      where: { id_psicologo, data_consulta, horario, status: ['agendada', 'confirmada'] },
-    });
+    const { Op } = require('sequelize');
+    const conflito = await Consulta.findOne({where: {id_psicologo,data_consulta,horario,status: {[Op.in]: ['agendada', 'confirmada']}}});
     if (conflito) return res.status(400).json({ erro: 'Horário já ocupado.' });
 
     const consulta = await Consulta.create({

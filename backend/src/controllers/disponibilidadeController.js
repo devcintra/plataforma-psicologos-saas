@@ -37,13 +37,49 @@ const criar = async (req, res) => {
 // DELETE /api/disponibilidade/:id
 const remover = async (req, res) => {
   try {
-    const disponibilidade = await Disponibilidade.findByPk(req.params.id);
-    if (!disponibilidade) return res.status(404).json({ erro: 'Disponibilidade não encontrada.' });
+
+    const psicologo = await Psicologo.findOne({
+      where: {
+        id_usuario: req.usuario.id_usuario
+      }
+    });
+
+    if (!psicologo) {
+      return res.status(403).json({
+        erro: 'Apenas psicólogos podem remover horários.'
+      });
+    }
+
+
+    const disponibilidade = await Disponibilidade.findOne({
+      where: {
+        id_disponibilidade: req.params.id,
+        id_psicologo: psicologo.id_psicologo
+      }
+    });
+
+
+    if (!disponibilidade) {
+      return res.status(404).json({
+        erro: 'Horário não encontrado.'
+      });
+    }
+
 
     await disponibilidade.destroy();
-    res.json({ mensagem: 'Disponibilidade removida!' });
+
+
+    res.json({
+      mensagem: 'Disponibilidade removida com sucesso!'
+    });
+
+
   } catch (erro) {
-    res.status(500).json({ erro: 'Erro ao remover disponibilidade.' });
+
+    res.status(500).json({
+      erro: 'Erro ao remover disponibilidade.'
+    });
+
   }
 };
 
