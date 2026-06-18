@@ -1,86 +1,170 @@
-/*document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("formLogin");
+document.addEventListener("DOMContentLoaded", () => {
+    configurarLogin();
+});
 
-    form.addEventListener("submit", async (event) => {
-        event.preventDefault();
+/**
+ * Descobre automaticamente a URL da API
+ * Funciona no Codespaces e localhost
+ */
+function descobrirBaseURL() {
+    const hostname = window.location.hostname;
 
-        const email = document.getElementById("email").value.trim();
-        const senha = document.getElementById("senha").value.trim();
+    if (
+        hostname.includes("github.dev") ||
+        hostname.includes("app.github.dev")
+    ) {
+        return window.location.origin.replace(
+            /-\d+\./,
+            "-3000."
+        ) + "/api";
+    }
 
-        if (!email) {
-            alert("E-mail ou CRP é obrigatório.");
-            return;
+    return "http://localhost:3000/api";
+}
+
+const API_BASE_URL = descobrirBaseURL();
+
+
+function configurarLogin() {
+
+    const formLogin = document.getElementById("formLogin");
+
+    if (!formLogin) return;
+
+
+    formLogin.addEventListener("submit", async (e) => {
+
+        e.preventDefault();
+
+
+        const email = document
+            .getElementById("email")
+            .value
+            .trim()
+            .toLowerCase();
+
+        const senha = document
+            .getElementById("senha")
+            .value;
+
+
+        const botao = formLogin.querySelector("button");
+
+        if (botao) {
+            botao.disabled = true;
+            botao.textContent = "Entrando...";
         }
 
-        if (!senha) {
-            alert("Senha é obrigatória.");
-            return;
-        }
 
         try {
-            const response = await fetch("http://localhost:8080/api/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    email,
-                    senha
-                })
-            });
 
-            // Se a API retornar 200
-            if (response.status === 200) {
-
-                const dados = await response.json();
-
-                // Salva o token caso exista
-                if (dados.token) {
-                    localStorage.setItem("token", dados.token);
+            const resposta = await fetch(
+                `${API_BASE_URL}/auth/login`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email,
+                        senha
+                    })
                 }
+            );
 
-                // Redireciona para o dashboard
-                window.location.href = "dashboard.html";
-                return;
+
+            const resultado = await resposta.json();
+
+
+            if (!resposta.ok) {
+                throw new Error(
+                    resultado.erro || "Erro ao realizar login."
+                );
             }
 
-            // Tratamento para outros status
-            if (response.status === 401) {
-                alert("Usuário ou senha inválidos.");
-                return;
+
+            // ===============================
+            // Salva dados da sessão
+            // ===============================
+
+            localStorage.setItem(
+                "token",
+                resultado.token
+            );
+
+            localStorage.setItem(
+                "id_usuario",
+                resultado.usuario.id_usuario
+            );
+
+            localStorage.setItem(
+                "tipo_usuario",
+                resultado.usuario.tipo_usuario
+            );
+
+
+            // Salva IDs específicos
+            if (resultado.usuario.id_psicologo) {
+
+                localStorage.setItem(
+                    "id_psicologo",
+                    resultado.usuario.id_psicologo
+                );
             }
 
-            if (response.status === 404) {
-                alert("Usuário não encontrado.");
-                return;
+
+            if (resultado.usuario.id_paciente) {
+
+                localStorage.setItem(
+                    "id_paciente",
+                    resultado.usuario.id_paciente
+                );
             }
 
-            alert("Erro ao realizar login.");
 
-        } catch (error) {
-            console.error(error);
-            alert("Erro ao conectar com o servidor.");
+            alert(`Bem-vindo(a), ${resultado.usuario.nome}!`);
+
+
+            // ===============================
+            // Redirecionamento por tipo
+            // ===============================
+
+            if (resultado.usuario.tipo_usuario === "psicologo") {
+
+                window.location.href = "dashboard_psi.html";
+
+            } else if (
+                resultado.usuario.tipo_usuario === "paciente"
+            ) {
+
+                window.location.href = "dashboard_paciente.html";
+
+            } else {
+
+                alert("Tipo de usuário inválido.");
+
+                localStorage.clear();
+            }
+
+
+        } catch (erro) {
+
+            console.error("Erro no login:", erro);
+
+            alert(
+                erro.message ||
+                "Não foi possível realizar o login."
+            );
+
+        } finally {
+
+            if (botao) {
+                botao.disabled = false;
+                botao.textContent = "Entrar";
+            }
+
         }
+
     });
-});*/
 
-const form = document.getElementById("formLogin");
-
-form.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    const email = document.getElementById("email").value.trim();
-    const senha = document.getElementById("senha").value.trim();
-
-    if (!email || !senha) {
-        alert("Preencha todos os campos.");
-        return;
-    }
-
-    // Simulação da resposta da API
-    const statusApi = 200;
-
-    if (statusApi === 200) {
-        window.location.href = "dashboard.html";
-    }
-});
+}

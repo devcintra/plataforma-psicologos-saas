@@ -2,141 +2,203 @@ document.addEventListener("DOMContentLoaded", () => {
     inicializarSistemaDeChat();
 });
 
-let usuarioTipo = ""; // "paciente" ou "psicologo"
-let consultaIdAtiva = null;
-let bancoPsicologo = {};
+/**
+ * DESCOBERTA AUTOMÁTICA DA URL (Suporte a Codespaces e Localhost)
+ */
+function descobrirBaseURL() {
+    const hostname = window.location.hostname;
+    if (hostname.includes("github.dev") || hostname.includes("app.github.dev")) {
+        return window.location.origin.replace(/-\d+\./, "-3000.") + "/api";
+    }
+    return "http://localhost:3000/api";
+}
 
-function inicializarSistemaDeChat() {
-    // 1. Descobre quem está acessando pelos parâmetros da URL (?tipo=paciente&id=123456)
+const API_BASE_URL = descobrirBaseURL();
+
+// Variáveis de controle de estado global
+let usuarioTipo = "";       // "paciente" ou "psicologo"
+let idDestinatario = null;   // ID do outro usuário com quem se está a conversar
+let idUsuarioLogado = null;  // ID de quem está com a sessão ativa
+let intervaloSync = null;    // Guarda o timer do Polling assíncrono
+
+/**
+ * 1. INICIALIZA O CHAT EXTRAINDO OS DADOS DA URL E DO JWT
+ */
+async function inicializarSistemaDeChat() {
     const params = new URLSearchParams(window.location.search);
     usuarioTipo = params.get("tipo") || "paciente";
-    consultaIdAtiva = parseInt(params.get("id"));
+    
+    // Captura o ID do psicólogo ou paciente alvo passado via query string (Ex: chat.html?tipo=paciente&comId=5)
+    idDestinatario = parseInt(params.get("comId") || params.get("id"));
 
-    bancoPsicologo = JSON.parse(localStorage.getItem("cadastroPsicologo")) || {};
-    const consultas = bancoPsicologo.consultasAgendadas || [];
-    const consultaAtual = consultas.find(c => c.id === consultaIdAtiva);
-
-    if (!consultaAtual) {
-        alert("Nenhum canal de chat ativo localizado para esta consulta.");
-        window.location.href = "index.html";
+    // Recupera o Token do armazenamento local para autenticação
+    const token = localStorage.getItem("token_jwt");
+    if (!token) {
+        alert("Sessão expirada ou utilizador não autenticado. Retornando ao login.");
+        window.location.href = usuarioTipo === "paciente" ? "login_pac.html" : "login_psi.html";
         return;
     }
 
-    // 2. Configura a interface baseado em quem está logado
-    configurarPerfilInterface(consultaAtual);
+    // Decodifica a identidade do utilizador logado através das informações salvas
+    try {
+        const payloadSalvo = usuarioTipo === "paciente" 
+            ? JSON.parse(localStorage.getItem("cadastro_pac")) 
+            : JSON.parse(localStorage.getItem("cadastroPsicologo"));
+            
+        idUsuarioLogado = payloadSalvo ? (payloadSalvo.id || payloadSalvo.id_usuario) : null;
+        
+        // Configura elementos visuais do cabeçalho da conversa
+        configurarInterfaceCabeçalho(payloadSalvo);
 
-    // 3. Renderiza as mensagens salvas iniciais
-    carregarEMostrarMensagens();
+        // Faz a primeira carga de mensagens
+        await carregarEMostrarMensagensAPI();
 
-    // 4. Ativa escuta de cliques para enviar mensagem
-    document.getElementById("btn-enviar-mensagem").addEventListener("click", capturarEEnviarMensagem);
-    document.getElementById("input-mensagem-texto").addEventListener("keypress", (e) => {
-        if (e.key === "Enter") capturarEEnviarMensagem();
-    });
+        // Ativa os escutadores de envio (Botão clique e Tecla Enter)
+        document.getElementById("btn-enviar-mensagem").addEventListener("click", capturarEEnviarMensagemAPI);
+        document.getElementById("input-mensagem-texto").addEventListener("keyup", (e) => {
+            if (e.key === "Enter") capturarEEnviarMensagemAPI();
+        });
 
-    // Botão Voltar Dinâmico
-    document.getElementById("btn-voltar-painel").addEventListener("click", () => {
-        if (usuarioTipo === "psicologo") {
-            window.location.href = "dashboard.html";
-        } else {
-            window.location.href = "dashboard_pac.html";
-        }
-    });
+        // Configura o Polling Automático (Sincroniza novas mensagens a cada 3 segundos)
+        intervaloSync = setInterval(carregarEMostrarMensagensAPI, 3000);
 
-    // 5. Pooling / Loop de atualização automática (Atualiza a conversa a cada 2 segundos)
-    setInterval(carregarEMostrarMensagens, 2000);
-}
-
-function configurarPerfilInterface(consulta) {
-    const avatarImg = document.getElementById("interacao-avatar");
-    const nomeTxt = document.getElementById("interacao-nome");
-    const detalheTxt = document.getElementById("interacao-detalhe");
-
-    if (usuarioTipo === "paciente") {
-        // Se eu sou o paciente, vejo os dados da psicóloga na lateral
-        nomeTxt.textContent = `Psic. ${bancoPsicologo.nome || "Profissional"} ${bancoPsicologo.sobrenome || ""}`;
-        detalheTxt.textContent = `Sessão: ${consulta.dia}-feira às ${consulta.hora}`;
-        if (bancoPsicologo.foto) avatarImg.src = bancoPsicologo.foto;
-    } else {
-        // Se eu sou a psicóloga, vejo os dados do paciente na lateral
-        nomeTxt.textContent = consulta.paciente;
-        detalheTxt.textContent = `Horário agendado: ${consulta.hora}`;
-        // Letra inicial como placeholder seguro de avatar
-        avatarImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(consulta.paciente)}&background=F1EAFB&color=7A6B90&size=128`;
+    } catch (erro) {
+        console.error("Erro ao montar estrutura do chat:", erro);
     }
 }
 
-function carregarEMostrarMensagens() {
+/**
+ * 2. CONFIGURA O CABEÇALHO DINAMICAMENTE
+ */
+function configurarInterfaceCabeçalho(dadosLogado) {
+    const nomeInteracao = document.getElementById("interacao-nome");
+    if (nomeInteracao) {
+        nomeInteracao.textContent = usuarioTipo === "paciente" ? "Seu Psicólogo" : "Paciente em Atendimento";
+    }
+    
+    const txtStatus = document.getElementById("txt-status-conexao");
+    if (txtStatus) {
+        txtStatus.innerHTML = `<span style="color: green;">●</span> Ligado ao Servidor`;
+    }
+}
+
+/**
+ * 3. CONSOME O ENDPOINT GET /api/mensagens/{usuario1}/{usuario2}
+ */
+async function carregarEMostrarMensagensAPI() {
+    if (!idUsuarioLogado || !idDestinatario) return;
+
+    const token = localStorage.getItem("token_jwt");
     const caixa = document.getElementById("caixa-mensagens-chat");
     if (!caixa) return;
 
-    // Busca o histórico global de chats ou cria um se estiver vazio
-    let historicoChats = JSON.parse(localStorage.getItem("historico_conversas_psi")) || {};
-    
-    // Filtra apenas as mensagens desse ID de agendamento específico
-    let mensagensDaSessao = historicoChats[consultaIdAtiva] || [];
+    // Detecta se o utilizador já está no final do scroll para manter a rolagem automática
+    const estaNoFinal = (caixa.scrollHeight - caixa.scrollTop <= caixa.clientHeight + 50);
 
-    // Guarda a posição do scroll atual para não atrapalhar a leitura se o usuário subiu a barra
-    const estaNoFinal = caixa.scrollHeight - caixa.scrollTop <= caixa.clientHeight + 40;
+    try {
+        // Endpoint documentado: GET /api/mensagens/{usuario1}/{usuario2}
+        const resposta = await fetch(`${API_BASE_URL}/mensagens/${idUsuarioLogado}/${idDestinatario}`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
 
-    caixa.innerHTML = "";
+        if (!resposta.ok) throw new Error("Não foi possível carregar as mensagens.");
 
-    if (mensagensDaSessao.length === 0) {
-        caixa.innerHTML = `<div style="text-align:center; padding-top:40px; color:#9A8BB0; font-size:13px; font-style:italic;">Nenhuma mensagem trocada ainda. Inicie a conversa abaixo!</div>`;
-        return;
-    }
+        const listaMensagens = await resposta.json();
+        caixa.innerHTML = "";
 
-    mensagensDaSessao.forEach(msg => {
-        const row = document.createElement("div");
-        row.className = "msg-row";
-
-        // Define o lado do balão (Se eu enviei, fica na direita 'sent'. Se recebi, na esquerda 'received')
-        if (msg.remetente === usuarioTipo) {
-            row.classList.add("sent");
-        } else {
-            row.classList.add("received");
+        if (listaMensagens.length === 0) {
+            caixa.innerHTML = `<p style="text-align: center; color: var(--sub); padding: 20px; font-size: 13px;">O canal de mensagens está aberto. Digite algo para iniciar a conversa.</p>`;
+            return;
         }
 
-        row.innerHTML = `
-            <div class="msg-bubble">
-                ${msg.texto}
-                <span class="msg-time">${msg.horaEnvio}</span>
-            </div>
-        `;
-        caixa.appendChild(row);
-    });
+        // Renderiza cada balão de mensagem dinamicamente de acordo com o remetente
+        listaMensagens.forEach(msg => {
+            const row = document.createElement("div");
+            row.className = "message-row";
 
-    // Rola para o final automaticamente se o usuário já estava lá embaixo
-    if (estaNoFinal) {
-        caixa.scrollTop = caixa.scrollHeight;
+            // Se o id_remetente for igual ao meu ID, o balão vai para a direita ("sent")
+            if (msg.id_remetente === idUsuarioLogado) {
+                row.classList.add("sent");
+            } else {
+                row.classList.add("received");
+            }
+
+            // Tratamento amigável da hora de envio
+            const horaFormatada = msg.created_at 
+                ? new Date(msg.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+                : "Agora";
+
+            row.innerHTML = `
+                <div class="msg-bubble">
+                    ${msg.conteudo || msg.texto}
+                    <span class="msg-time">${horaFormatada}</span>
+                </div>
+            `;
+            caixa.appendChild(row);
+        });
+
+        // Rola automaticamente para a última mensagem se necessário
+        if (estaNoFinal) {
+            caixa.scrollTop = caixa.scrollHeight;
+        }
+
+    } catch (erro) {
+        console.warn("Erro na sincronização de mensagens:", erro);
     }
 }
 
-function capturarEEnviarMensagem() {
+/**
+ * 4. DISPARA O POST /api/mensagens PARA ENVIAR TEXTOS REALMENTE AO BANCO
+ */
+async function capturarEEnviarMensagemAPI() {
     const input = document.getElementById("input-mensagem-texto");
+    if (!input) return;
+
     const textoMensagem = input.value.trim();
+    if (!textoMensagem) return; // Ignora inputs vazios
 
-    if (!textoMensagem) return;
+    const token = localStorage.getItem("token_jwt");
 
-    let historicoChats = JSON.parse(localStorage.getItem("historico_conversas_psi")) || {};
-    if (!historicoChats[consultaIdAtiva]) {
-        historicoChats[consultaIdAtiva] = [];
+    // Bloqueia temporariamente o input para evitar duplo clique acidental
+    input.disabled = true;
+
+    try {
+        // Payload estruturado conforme a especificação do backend
+        const payloadMensagem = {
+            id_destinatario: idDestinatario,
+            conteudo: textoMensagem
+        };
+
+        const resposta = await fetch(`${API_BASE_URL}/mensagens`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payloadMensagem)
+        });
+
+        if (resposta.ok) {
+            input.value = ""; // Limpa a barra de digitação
+            await carregarEMostrarMensagensAPI(); // Força atualização imediata da tela
+        } else {
+            const erroRes = await resposta.json();
+            alert(erroRes.erro || "Falha ao entregar mensagem.");
+        }
+    } catch (erro) {
+        console.error("Erro no envio do chat:", erro);
+        alert("Erro de ligação com o servidor.");
+    } finally {
+        input.disabled = false;
+        input.focus();
     }
-
-    const agora = new Date();
-    const horaFormatada = agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-
-    // Estrutura do payload da mensagem
-    const novaMensagem = {
-        remetente: usuarioTipo, // "paciente" ou "psicologo"
-        texto: textoMensagem,
-        horaEnvio: horaFormatada,
-        timestamp: Date.now()
-    };
-
-    historicoChats[consultaIdAtiva].push(novaMensagem);
-    localStorage.setItem("historico_conversas_psi", JSON.stringify(historicoChats));
-
-    input.value = "";
-    carregarEMostrarMensagens();
 }
+
+// Garante a limpeza do timer ao sair da página para evitar vazamento de memória (Memory Leak)
+window.addEventListener("beforeunload", () => {
+    if (intervaloSync) clearInterval(intervaloSync);
+});

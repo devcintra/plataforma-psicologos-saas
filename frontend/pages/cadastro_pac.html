@@ -28,7 +28,7 @@
 
         <h2 class="titulo-pagina">Criar Conta Paciente</h2>
 
-        <form onsubmit="return false;" class="form-login" style="max-width: 540px;">
+<form id="form-cadastro-paciente" class="form-login" style="max-width: 540px;">
             
             <div class="field">
                 <label for="nome-pac">Nome Completo <span class="required">*</span></label>
@@ -38,11 +38,11 @@
             <div class="form-row">
                 <div class="field">
                     <label for="cpf-pac">CPF <span class="required">*</span></label>
-                    <input type="text" id="cpf-pac" placeholder="000.000.000-00" oninput="maskCPF(this)" required>
+                    <input type="text" id="cpf-pac" placeholder="000.000.000-00" required>
                 </div>
                 <div class="field">
-                    <label for="tel-pac">Telefone</label>
-                    <input type="tel" id="tel-pac" placeholder="(11) 99999-9999" oninput="maskPhone(this)">
+                    <label for="celular-pac">Telefone</label>
+                    <input type="tel" id="celular-pac" placeholder="(11) 99999-9999">
                 </div>
             </div>
 
@@ -109,12 +109,12 @@
                 </div>
             </div>
 
-            <button type="button" class="btn btn-primary btn-lg btn-full" style="margin-top: 20px;" onclick="criarContaPaciente(this)">Criar conta</button>
+            <button type="submit" class="btn btn-primary btn-lg btn-full" style="margin-top: 20px;">Criar conta</button>
         </form>
     </main>
 
     <footer class="rodape">
-        <a href="login_pac.html" style="display:block; text-align:center; margin-bottom:15px; color:var(--plum); font-weight:600; text-decoration:none;">Já tem conta? Entrar</a>
+        <a href="../pages/login_pac.html" style="display:block; text-align:center; margin-bottom:15px; color:var(--plum); font-weight:600; text-decoration:none;">Já tem conta? Entrar</a>
         <a href="index.html" class="btn-voltar">Voltar</a>
     </footer>
 

@@ -4,6 +4,21 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /**
+ * FUNÇÃO AUXILIAR: Descobre dinamicamente a URL da API no Codespaces ou Localhost
+ */
+function obterBaseURL() {
+    const urlAtual = window.location.href;
+    if (urlAtual.includes("app.github.dev")) {
+        const urlBackend = urlAtual.replace(/-\d+(?=\.app\.github\.dev)/, "-3000");
+        const urlOriginal = new URL(urlBackend);
+        return `${urlOriginal.origin}/api`;
+    }
+    return "http://localhost:3000/api";
+}
+
+const BASE_URL = obterBaseURL();
+
+/**
  * 1. APLICAÇÃO DE MÁSCARAS EM TEMPO REAL NOS CAMPOS DO SEU HTML
  */
 function inicializarMascaras() {
@@ -11,103 +26,111 @@ function inicializarMascaras() {
     const inputCelular = document.getElementById("celular-pac");
     const inputCep = document.getElementById("cep-pac");
 
-    // Máscara de CPF: 000.000.000-00
     if (inputCpf) {
         inputCpf.addEventListener("input", (e) => {
-            let value = e.target.value.replace(/\D/g, ""); // Remove caracteres não numéricos
-            if (value.length > 11) value = value.slice(0, 11); // Trava em 11 dígitos
-            
+            let value = e.target.value.replace(/\D/g, "");
+            if (value.length > 11) value = value.slice(0, 11);
             value = value.replace(/(\d{3})(\d)/, "$1.$2");
             value = value.replace(/(\d{3})(\d)/, "$1.$2");
             value = value.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-            
             e.target.value = value;
         });
     }
 
-    // Máscara de Celular: (00) 00000-0000
     if (inputCelular) {
         inputCelular.addEventListener("input", (e) => {
             let value = e.target.value.replace(/\D/g, "");
-            if (value.length > 11) value = value.slice(0, 11); // Trava em 11 dígitos (DDD + 9 dígitos)
-            
+            if (value.length > 11) value = value.slice(0, 11);
             value = value.replace(/^(\d{2})(\d)/g, "($1) $2");
-            value = value.replace(/(\d{5})(\d)/, "$1-$2");
-            
+            value = value.replace(/(\d)(\d{4})$/, "$1-$2");
             e.target.value = value;
         });
     }
 
-    // Máscara de CEP: 00000-000
     if (inputCep) {
         inputCep.addEventListener("input", (e) => {
             let value = e.target.value.replace(/\D/g, "");
-            if (value.length > 8) value = value.slice(0, 8); // Trava em 8 dígitos
-            
+            if (value.length > 8) value = value.slice(0, 8);
             value = value.replace(/^(\d{5})(\d)/, "$1-$2");
-            
             e.target.value = value;
         });
     }
 }
 
 /**
- * 2. CAPTURA DOS DADOS, VALIDAÇÃO E PERSISTÊNCIA REAL NO LOCALSTORAGE
+ * 2. INTEGRAÇÃO REAL COM A API DE CADASTRO
  */
 function configurarFormularioCadastro() {
-    // Captura o formulário presente na sua página (.form-login)
-    const form = document.querySelector(".form-login");
-    if (!form) return;
+    const formulario = document.getElementById("form-cadastro-paciente");
+    
+    if (formulario) {
+        formulario.addEventListener("submit", async (e) => {
+            e.preventDefault(); // Impede o recarregamento da página
 
-    // Garante que o botão principal envie o formulário nativamente e limpa chamadas inline antigas
-    const btnCriarConta = document.querySelector(".btn-primary");
-    if (btnCriarConta) {
-        btnCriarConta.type = "submit";
-        btnCriarConta.removeAttribute("onclick");
+            // Captura dos elementos do HTML
+            const nomeInput = document.getElementById("nome-pac");
+            const emailInput = document.getElementById("email-pac");
+            const senhaInput = document.getElementById("senha-pac");
+            const cpfInput = document.getElementById("cpf-pac");
+            const celularInput = document.getElementById("celular-pac");
+            const cepInput = document.getElementById("cep-pac");
+
+            // Validação estrita de campos obrigatórios antes de enviar à API
+            if (!nomeInput?.value.trim() || !emailInput?.value.trim() || !senhaInput?.value.trim() || !cpfInput?.value.trim()) {
+                alert("Por favor, preencha todos os campos obrigatórios sinalizados com asterisco (*).");
+                return;
+            }
+
+            // Captura as preferências do formulário (Checkbox e Select)
+            const periodosSelecionados = Array.from(document.querySelectorAll('input[name="horario"]:checked')).map(el => el.value);
+            const precoMaximo = document.getElementById("preco-pac")?.value || "";
+
+            // Montagem do payload enviado para a API (Bate com as validações do Postman!)
+            const payloadPaciente = {
+                nome: nomeInput.value.trim(),
+                email: emailInput.value.trim(),
+                senha: senhaInput.value.trim(),
+                tipo_usuario: "paciente" // Exigido pelo seu backend
+                // Nota: Caso seu banco aceite CPF, Celular, etc., você pode passar abaixo:
+                // cpf: cpfInput.value.replace(/\D/g, ""), 
+                // celular: celularInput.value.replace(/\D/g, ""),
+                // cep: cepInput.value.replace(/\D/g, "")
+            };
+
+            try {
+                // Dispara a requisição para o endpoint de cadastro da dupla
+                const resposta = await fetch(`${BASE_URL}/auth/cadastro`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payloadPaciente)
+                });
+
+                const resultado = await resposta.json();
+
+                if (resposta.status === 201) {
+                    alert("Conta de paciente criada com sucesso!");
+                    
+                    // Opcional: Se quiser manter os dados extras guardados localmente para a sua Dashboard, mantém a linha:
+                    localStorage.setItem("cadastro_pac_detalhes", JSON.stringify({
+                        cpf: cpfInput.value,
+                        celular: celularInput?.value,
+                        cep: cepInput?.value,
+                        preferencias: { periodos: periodosSelecionados, faixaPreco: precoMaximo }
+                    }));
+
+                    // Redireciona para o login de paciente
+                    window.location.href = "login_pac.html";
+                } else {
+                    // Exibe o erro exato retornado pelo backend (Ex: "E-mail já cadastrado.")
+                    alert(`Erro no cadastro: ${resultado.erro || "Verifique os dados enviados."}`);
+                }
+
+            } catch (error) {
+                console.error("Erro ao conectar com a API:", error);
+                alert("Não foi possível estabelecer conexão com o servidor. Verifique se o backend está rodando no terminal.");
+            }
+        });
     }
-
-    form.addEventListener("submit", (e) => {
-        e.preventDefault(); // Evita que a página recarregue antes de salvarmos os dados
-
-        // Elementos reais extraídos do seu cadastro_pac.html
-        const nomeInput = document.getElementById("nome-pac");
-        const emailInput = document.getElementById("email-pac");
-        const senhaInput = document.getElementById("senha-pac");
-        const celularInput = document.getElementById("celular-pac");
-        const cpfInput = document.getElementById("cpf-pac");
-        const cepInput = document.getElementById("cep-pac");
-
-        // Captura dados adicionais de preferências do seu formulário
-        const periodoSelecionado = document.querySelector('input[name="horario"]:checked')?.value || "Não informado";
-        const precoMaximo = document.getElementById("preco-pac")?.value || "Qualquer valor";
-
-        // Validação estrita de campos obrigatórios marcados com "*" no seu HTML
-        if (!nomeInput?.value.trim() || !emailInput?.value.trim() || !senhaInput?.value.trim() || !cpfInput?.value.trim()) {
-            alert("Por favor, preencha todos os campos obrigatórios sinalizados com asterisco (*).");
-            return;
-        }
-
-        // Criação do objeto real guardando a SENHA de forma limpa para o sistema de login consultar
-        const payloadPaciente = {
-            nome: nomeInput.value.trim(),
-            email: emailInput.value.trim(),
-            senha: senhaInput.value.trim(), // ATUALIZADO: Agora salva a senha real!
-            celular: celularInput ? celularInput.value.trim() : "",
-            cpf: cpfInput.value.trim(),
-            cep: cepInput ? cepInput.value.trim() : "",
-            preferencias: {
-                periodo: periodoSelecionado,
-                faixaPreco: precoMaximo
-            },
-            dataCadastro: new Date().toLocaleDateString('pt-BR')
-        };
-
-        // Salva os dados unificados na chave correta do LocalStorage
-        localStorage.setItem("cadastro_pac", JSON.stringify(payloadPaciente));
-
-        alert("Conta de paciente criada com sucesso! Redirecionando para a tela de Login...");
-
-        // Redireciona para a sua página de login do paciente para testar a autenticação
-        window.location.href = "login_pac.html";
-    });
 }

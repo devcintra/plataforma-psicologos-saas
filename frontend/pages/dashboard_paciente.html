@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsiConnect – Painel do Paciente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/dashboard_pac.css">
+    <style>
+        /* Estilos base incorporados para garantir a consistência visual */
+        :root {
+            --plum: #4A225D;
+            --border: #E4D8F5;
+            --white: #ffffff;
+            --text: #1E1030;
+            --sub: #6B5A80;
+            --green: #28A745;
+            --bg: #F8F6FC;
+            --r: 16px;
+            --sh: 0 4px 12px rgba(74, 34, 93, 0.05);
+        }
+        body {
+            font-family: 'Figtree', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            color: var(--text);
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 40px;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+        }
+        .logo-nav img { height: 40px; }
+        .menu a {
+            margin-right: 20px;
+            text-decoration: none;
+            color: var(--sub);
+            font-weight: 500;
+        }
+        .menu a.active { color: var(--plum); font-weight: 700; }
+        
+        .patient-page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 60px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .welcome-banner {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--sh);
+        }
+        .btn-purple-action {
+            background: var(--plum);
+            color: var(--white);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+        .main-content { display: flex; flex-direction: column; gap: 24px; }
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 24px;
+            box-shadow: var(--sh);
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--plum);
+        }
+        .consulta-container {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            background: #FAF8FF;
+        }
+        .large-number { font-size: 48px; font-weight: 800; color: var(--plum); }
+        .consulta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 12px;
+            background: #fff;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            margin-top: 10px;
+        }
+        .btn-action {
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .btn-chat { background: #E4D8F5; color: var(--plum); font-weight: 600; }
+        .btn-cancelar { color: #D9534F; border-color: #F5D8D8; }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo-nav">
+            <img src="../img/logo-cerebro.png" alt="Logo PsiConnect">
+        </div>
+        <nav class="menu">
+            <a href="index.html">Home</a>
+            <a href="listagem-psicologos.html">Buscar Psicólogos</a>
+            <a href="dashboard_pac.html" class="active" id="menu-meus-agendamentos">Painel do Paciente</a>
+        </nav>
+        <div class="botoes-nav" id="nav-paciente-welcome">
+            <span id="nav-welcome" style="font-weight: 600; color: var(--plum);">Olá, Paciente!</span>
+        </div>
+    </header>
+
+    <main class="patient-page">
+        <section class="welcome-banner">
+            <div>
+                <h1 id="txt-boas-vindas" style="margin: 0 0 8px 0; font-size: 28px;">Olá, Paciente!</h1>
+                <p style="margin: 0; color: var(--sub);">Seja bem-vindo de volta ao seu espaço de cuidado e saúde mental.</p>
+            </div>
+            <a href="../pages/listagem-psicologos.html" class="btn-purple-action">Nova Consulta</a>
+        </section>
+
+        <div class="dashboard-grid">
+            <div class="main-content">
+                <div class="card" id="wrapper-proxima-consulta">
+                    <div class="card-title">Próxima Consulta Agendada</div>
+                    <div id="container-proxima-consulta" class="consulta-container">
+                        <p id="notif-agenda" style="color: var(--sub); margin: 0;">Nenhuma consulta agendada para os próximos dias.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Histórico de Consultas e Avaliações</div>
+                    <div id="container-historico-consultas">
+                        <p style="color: var(--sub); margin: 0;">Nenhuma consulta realizada anteriormente.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="card" style="text-align: center; margin-bottom: 24px;">
+                    <div class="large-number" id="lbl-total-realizadas">0</div>
+                    <div style="font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 16px;">Consultas Totais</div>
+                    
+                    <div style="text-align: left; font-size: 13px; border-top: 1px solid var(--border); padding-top: 16px;">
+                        <span style="color: var(--sub); font-weight: 600;">Status da Conta</span>
+                        <p style="font-weight: 700; margin: 4px 0 12px 0; color: var(--green);">Paciente Ativo</p>
+                        <span style="color: var(--sub); font-weight: 600;">Desde</span>
+                        <p style="font-weight: 700; margin: 4px 0 0 0;" id="lbl-data-desde">Acessando agora</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title" style="font-size: 15px; margin-bottom: 12px;">Lembretes e notificações</div>
+                    <div style="display: flex; flex-direction: column; gap: 10px;" id="container-notificacoes-laterais">
+                        <div class="consulta-row" style="margin: 0; background: var(--bg); padding: 10px 12px;">
+                            <span style="font-size: 13px;">Mantenha o seu perfil atualizado para facilitar os contactos.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/dashboard_pac.js"></script>
+</body>
+</html>

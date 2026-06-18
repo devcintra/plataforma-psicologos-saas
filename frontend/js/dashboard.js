@@ -1,395 +1,791 @@
 document.addEventListener("DOMContentLoaded", () => {
+    verificarSessao();
+    configurarNavegacaoAbas();
+    configurarLogout();
+    configurarNotificacoes();
+    carregarDashboard();
+});
 
-    // =================================================================
-    // LEITURA DO LOCALSTORAGE (MOCK DA API)
-    // =================================================================
-    const dadosCadastro = localStorage.getItem("cadastroPsicologo");
-    if (!dadosCadastro) return;
 
-    const cadastro = JSON.parse(dadosCadastro);
+function descobrirBaseURL() {
+    const hostname = window.location.hostname;
 
-    if (!cadastro.agendaSemanal) {
-        cadastro.agendaSemanal = { "segunda": [], "terca": [], "quarta": [], "quinta": [], "sexta": [], "sabado": [], "domingo": [] };
+    if (
+        hostname.includes("github.dev") ||
+        hostname.includes("app.github.dev")
+    ) {
+        return window.location.origin.replace(
+            /-\d+\./,
+            "-3000."
+        ) + "/api";
     }
 
-    // Injeções básicas estruturais
-    const avatarImg = document.getElementById("dash-avatar");
-    if (avatarImg && cadastro.foto) avatarImg.src = cadastro.foto;
+    return "http://localhost:3000/api";
+}
 
-    const dashNomeElement = document.getElementById("dash-nome");
-    if (dashNomeElement) dashNomeElement.textContent = `${cadastro.nome || ""} ${cadastro.sobrenome || ""}`.trim();
 
-    const welcomeElement = document.getElementById("nav-welcome");
-    if (welcomeElement) welcomeElement.textContent = `Olá, ${cadastro.nome || "Profissional"}`;
+const API_BASE_URL = descobrirBaseURL();
 
-    const crpElement = document.getElementById("dash-crp");
-    if (crpElement) crpElement.textContent = `CRP ${cadastro.crp || "--/-----"}`;
 
-    const campoAbordagem = document.getElementById("dash-abordagem");
-    if (campoAbordagem && cadastro.abordagem) {
-        campoAbordagem.textContent = `Abordagem: ${cadastro.abordagem}`;
-        campoAbordagem.style.display = "inline-block";
+function verificarSessao() {
+
+    const token = localStorage.getItem("token");
+    const idPsicologo = localStorage.getItem("id_psicologo");
+
+    if (!token || !idPsicologo) {
+        alert("Sessão expirada. Faça login novamente.");
+        window.location.href = "login_psi.html";
+        return;
     }
+}
 
-    const sobreElement = document.getElementById("dash-sobre");
-    if (sobreElement) sobreElement.textContent = cadastro.sobre || "Apresentação clínica.";
 
-    const specTags = document.getElementById("spec-tags");
-    if (specTags && cadastro.especialidades) {
-        specTags.innerHTML = cadastro.especialidades.map(e => `<span class="tag">${e}</span>`).join("");
-    }
+async function carregarDashboard() {
 
-    const valorElement = document.getElementById("sidebar-valor");
-    if (valorElement && cadastro.valor) {
-        valorElement.textContent = parseFloat(cadastro.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    }
+    const id = localStorage.getItem("id_psicologo");
+    const token =
+    localStorage.getItem("token_jwt") ||
+    localStorage.getItem("token");
 
-    // Painéis Superiores Estáticos
-    const viewsElement = document.getElementById("stat-views");
-    const agElement = document.getElementById("stat-ag");
-    if (viewsElement) viewsElement.textContent = "18";
+    try {
 
-    // =================================================================
-    // CONTROLO DE ABAS DO MENU (SISTEMA DE NAVEGAÇÃO)
-    // =================================================================
-    const menuInicio = document.getElementById("menu-btn-inicio");
-    const menuConsultas = document.getElementById("menu-btn-consultas");
-    
-    const abaAgenda = document.getElementById("aba-gerenciar-agenda");
-    const abaConsultas = document.getElementById("aba-consultas-recebidas");
-
-    if (menuInicio && menuConsultas) {
-        menuInicio.addEventListener("click", () => {
-            menuInicio.classList.add("active");
-            menuConsultas.classList.remove("active");
-            abaAgenda.classList.add("active");
-            abaConsultas.classList.remove("active");
-        });
-
-        menuConsultas.addEventListener("click", () => {
-            menuConsultas.classList.add("active");
-            menuInicio.classList.remove("active");
-            abaConsultas.classList.add("active");
-            abaAgenda.classList.remove("active");
-            
-            renderizarAbaConsultasExclusiva();
-        });
-    }
-
-    // =================================================================
-    // RENDERIZAÇÃO DA AGENDA (CONFIGURADOR DE DIAS)
-    // =================================================================
-    function renderizarHorariosDashboard() {
-        const gridContainer = document.getElementById("week-grid");
-        if (!gridContainer) return;
-        gridContainer.innerHTML = "";
-
-        const diasChaves = ["segunda", "terca", "quarta", "quinta", "sexta", "sabado", "domingo"];
-        const diasNomes = {
-            "segunda": "Segunda-feira", "terca": "Terça-feira", "quarta": "Quarta-feira",
-            "quinta": "Quinta-feira", "sexta": "Sexta-feira", "sabado": "Sábado", "domingo": "Domingo"
-        };
-
-        diasChaves.forEach(dia => {
-            const listaHoras = cadastro.agendaSemanal[dia] || [];
-
-            const colunaDia = document.createElement("div");
-            colunaDia.style.background = "var(--white)";
-            colunaDia.style.border = "1px solid var(--border)";
-            colunaDia.style.borderRadius = "var(--radius-sm)";
-            colunaDia.style.padding = "14px";
-            colunaDia.style.display = "flex";
-            colunaDia.style.flexDirection = "column";
-            colunaDia.style.gap = "8px";
-
-            colunaDia.innerHTML = `<h4 style="color: #5B2D8E; border-bottom: 2px solid #F0EAF9; padding-bottom: 4px; font-weight:700;">📅 ${diasNomes[dia]}</h4>`;
-
-            if (listaHoras.length === 0) {
-                colunaDia.innerHTML += `<span style="font-size: 12px; color: var(--muted); font-style: italic;">Nenhum horário</span>`;
-            } else {
-                listaHoras.forEach(hora => {
-                    const boxHora = document.createElement("div");
-                    boxHora.style.display = "flex";
-                    boxHora.style.justifyContent = "space-between";
-                    boxHora.style.background = "var(--bg)";
-                    boxHora.style.padding = "6px 10px";
-                    boxHora.style.borderRadius = "4px";
-                    boxHora.style.fontSize = "13px";
-
-                    boxHora.innerHTML = `
-                        <strong>${hora}</strong>
-                        <button onclick="removerHorarioDiaAPI('${dia}', '${hora}')" style="background:none; border:none; color:var(--rose); cursor:pointer; font-size:11px; font-weight:bold;">Excluir</button>
-                    `;
-                    colunaDia.appendChild(boxHora);
-                });
+        const resposta = await fetch(
+            `${API_BASE_URL}/psicologos/${id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
             }
-            gridContainer.appendChild(colunaDia);
-        });
-    }
+        );
 
-    // =================================================================
-    // RENDERIZAÇÃO DA LISTA EXCLUSIVA DE CONSULTAS AGENDADAS
-    // =================================================================
-    function renderizarAbaConsultasExclusiva() {
-        const containerCompleto = document.getElementById("container-consultas-completo");
-        if (!containerCompleto) return;
 
-        const consultas = cadastro.consultasAgendadas || [];
-
-        if (agElement) agElement.textContent = consultas.length.toString();
-
-        if (consultas.length === 0) {
-            containerCompleto.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--muted); font-style: italic; background: #fff; border: 1px dashed var(--border); border-radius: 8px;">
-                    Nenhum paciente realizou marcações para os seus horários até ao momento.
-                </div>
-            `;
-            return;
+        if (!resposta.ok) {
+            throw new Error(
+                "Não foi possível carregar o perfil."
+            );
         }
 
-        containerCompleto.innerHTML = "";
 
-        consultas.forEach((consulta, index) => {
+        const psicologo = await resposta.json();
 
-            const statusAtual = consulta.status || "Agendada";
 
-            let corStatus = "#5B2D8E";
-            let fundoStatus = "#F1EAFB";
+        preencherPerfil(psicologo);
 
-            if (statusAtual === "Cancelada") {
-                corStatus = "#DC2626";
-                fundoStatus = "#FEE2E2";
-            } else if (statusAtual === "Reagendada") {
-                corStatus = "#D97706";
-                fundoStatus = "#FEF3C7";
-            } else if (statusAtual === "Concluída") {
-                corStatus = "#10B981"; // Verde para concluído
-                fundoStatus = "#D1FAE5";
+        renderizarHorarios(
+            psicologo.Disponibilidades || []
+        );
+
+        await carregarConsultas();
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar dashboard:",
+            erro
+        );
+
+        alert(
+            "Erro ao carregar seus dados."
+        );
+    }
+}
+
+
+function preencherPerfil(psicologo) {
+
+    const usuario = psicologo.Usuario || {};
+
+
+    const nome =
+        usuario.nome || "Profissional";
+
+
+    const especialidade =
+        psicologo.Especialidades &&
+        psicologo.Especialidades.length > 0
+        ? psicologo.Especialidades[0].nome
+        : "Não informada";
+
+
+    const foto =
+        psicologo.foto ||
+        "htps://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150";
+
+
+    const avatar =
+        document.getElementById("dash-avatar");
+
+    if (avatar) {
+        avatar.src = foto;
+    }
+
+
+    const nomeCampo =
+        document.getElementById("dash-nome");
+
+    if (nomeCampo) {
+        nomeCampo.textContent = nome;
+    }
+
+
+    const boasVindas =
+        document.getElementById("nav-welcome");
+
+    if (boasVindas) {
+        boasVindas.textContent =
+            `Olá, ${nome.split(" ")[0]}`;
+    }
+
+
+    const crp =
+        document.getElementById("dash-crp");
+
+    if (crp) {
+        crp.textContent =
+            `CRP ${psicologo.crp}`;
+    }
+
+
+    const abordagem =
+        document.getElementById("dash-abordagem");
+
+    if (abordagem) {
+        abordagem.textContent =
+            especialidade;
+    }
+
+
+    const containerEspecialidades =
+    document.getElementById("spec-tags");
+
+if (containerEspecialidades) {
+
+    containerEspecialidades.innerHTML = "";
+
+    if (
+        psicologo.Especialidades &&
+        psicologo.Especialidades.length > 0
+    ) {
+
+        psicologo.Especialidades.forEach(
+            especialidade => {
+
+                containerEspecialidades.innerHTML += `
+                    <span class="tag">
+                        ${especialidade.nome}
+                    </span>
+                `;
+
             }
+        );
+
+    } else {
+
+        containerEspecialidades.innerHTML = `
+            <span class="tag">
+                Não informada
+            </span>
+        `;
+
+    }
+}
+
+
+    const sobre = document.getElementById("dash-sobre");
+
+        if (sobre) {
+            sobre.textContent =
+                psicologo.descricao ||
+            "Nenhuma descrição cadastrada.";
+        }
+
+
+    const valor = document.getElementById("sidebar-valor");
+
+    if (valor) {
+        valor.textContent = `R$ ${Number(
+            psicologo.valor_consulta || 0
+        ).toFixed(2).replace(".", ",")}`;
+    }
+
+}
+
+
+function configurarNavegacaoAbas() {
+
+    const btnInicio =
+        document.getElementById("menu-btn-inicio");
+
+    const btnConsultas =
+        document.getElementById("menu-btn-consultas");
+
+
+    const abaAgenda =
+        document.getElementById(
+            "aba-gerenciar-agenda"
+        );
+
+    const abaConsultas =
+        document.getElementById(
+            "aba-consultas-recebidas"
+        );
+
+
+    btnInicio.addEventListener("click", () => {
+
+        btnInicio.classList.add("active");
+        btnConsultas.classList.remove("active");
+
+
+        abaAgenda.classList.add("active");
+        abaConsultas.classList.remove("active");
+
+    });
+
+
+    btnConsultas.addEventListener("click", () => {
+
+        btnConsultas.classList.add("active");
+        btnInicio.classList.remove("active");
+
+
+        abaConsultas.classList.add("active");
+        abaAgenda.classList.remove("active");
+
+    });
+
+}
+// ==========================================
+// HORÁRIOS - RENDERIZAÇÃO DA AGENDA
+// ==========================================
+
+function renderizarHorarios(disponibilidades) {
+
+    const grid = document.getElementById("week-grid");
+
+    if (!grid) return;
+
+    grid.innerHTML = "";
+
+
+    const dias = [
+        "segunda",
+        "terca",
+        "quarta",
+        "quinta",
+        "sexta",
+        "sabado",
+        "domingo"
+    ];
+
+
+    dias.forEach(dia => {
+
+        const coluna = document.createElement("div");
+        coluna.className = "day-col";
+
+
+        const horariosDoDia = disponibilidades.filter(
+            item =>
+                item.dia_semana
+                    .toLowerCase()
+                    .replace("ç", "c")
+                    .replace("á", "a")
+                    === dia
+        );
+
+
+        let conteudoHoras = "";
+
+
+        if (horariosDoDia.length === 0) {
+
+            conteudoHoras = `
+                <span class="no-hours">
+                    Nenhum horário
+                </span>
+            `;
+
+        } else {
+
+
+            horariosDoDia.forEach(horario => {
+
+                conteudoHoras += `
+                    <div class="hour-tag">
+                        ${horario.hora_inicio} às ${horario.hora_fim}
+
+                        <span 
+                            class="remove-hour"
+                            onclick="removerHorario(${horario.id_disponibilidade})"
+                        >
+                            &times;
+                        </span>
+
+                    </div>
+                `;
+            });
+
+        }
+
+
+        const nomeDia = dia
+            .replace("terca", "Terça")
+            .replace("sabado", "Sábado");
+
+
+        coluna.innerHTML = `
+            <div class="day-name">
+                ${nomeDia.charAt(0).toUpperCase() + nomeDia.slice(1)}
+            </div>
+
+            <div class="hours-list">
+                ${conteudoHoras}
+            </div>
+        `;
+
+
+        grid.appendChild(coluna);
+
+    });
+
+}
+
+
+// ==========================================
+// ADICIONAR HORÁRIO
+// ==========================================
+
+window.openModal = async function () {
+
+
+    const dia = prompt(
+        "Digite o dia (segunda, terca, quarta, quinta, sexta, sabado ou domingo):"
+    );
+
+
+    if (!dia) return;
+
+
+    const diaFormatado = dia
+        .toLowerCase()
+        .trim()
+        .replace("ç", "c")
+        .replace("á", "a");
+
+
+    const diasValidos = [
+        "segunda",
+        "terca",
+        "quarta",
+        "quinta",
+        "sexta",
+        "sabado",
+        "domingo"
+    ];
+
+
+    if (!diasValidos.includes(diaFormatado)) {
+
+        alert("Dia inválido!");
+
+        return;
+
+    }
+
+
+    const horaInicio = prompt(
+    "Digite o horário inicial (Ex: 08:00):"
+    );
+
+    if (!horaInicio) return;
+
+
+    const horaFim = prompt(
+        "Digite o horário final (Ex: 09:00):"
+    );
+
+    if (!horaFim) return;
+
+
+    const token = localStorage.getItem("token");
+
+
+    try {
+
+
+        const resposta = await fetch(
+            `${API_BASE_URL}/disponibilidade`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+
+                body: JSON.stringify({
+                    dia_semana: diaFormatado,
+                    hora_inicio: horaInicio,
+                    hora_fim: horaFim
+                })
+
+            }
+        );
+
+
+        const resultado = await resposta.json();
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                resultado.erro || "Erro ao cadastrar horário"
+            );
+
+        }
+
+
+        alert("Horário adicionado com sucesso!");
+
+
+        // recarrega todos os dados do dashboard
+        carregarDashboard();
+
+
+    } catch (erro) {
+
+
+        console.error(erro);
+
+        alert(
+            erro.message || "Erro ao adicionar horário."
+        );
+
+    }
+
+};
+
+
+// ==========================================
+// REMOVER HORÁRIO
+// ==========================================
+
+window.removerHorario = async function(id) {
+
+
+    const confirmar = confirm(
+        "Deseja remover este horário?"
+    );
+
+
+    if (!confirmar) return;
+
+
+    const token = localStorage.getItem("token");
+
+
+    try {
+
+
+        const resposta = await fetch(
+            `${API_BASE_URL}/disponibilidade/${id}`,
+            {
+                method: "DELETE",
+
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+
+            }
+        );
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                "Erro ao remover horário."
+            );
+
+        }
+
+
+        alert(
+            "Horário removido com sucesso!"
+        );
+
+
+        // atualiza a agenda
+        carregarDashboard();
+
+
+    } catch (erro) {
+
+
+        console.error(erro);
+
+        alert(
+            "Não foi possível remover o horário."
+        );
+
+    }
+
+};
+// ==========================================
+// CONSULTAS AGENDADAS
+// ==========================================
+
+async function carregarConsultas() {
+
+    const container = document.getElementById(
+        "container-consultas-completo"
+    );
+
+    if (!container) return;
+
+
+    const token =
+    localStorage.getItem("token_jwt") ||
+    localStorage.getItem("token");
+
+    try {
+
+
+        const resposta = await fetch(
+            `${API_BASE_URL}/consultas`,
+            {
+                method: "GET",
+
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+
+        const consultas = await resposta.json();
+        console.log("Consultas recebidas:", consultas);
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                consultas.erro ||
+                "Erro ao buscar consultas"
+            );
+
+        }
+
+
+        container.innerHTML = "";
+
+
+        // Caso não tenha nenhuma consulta
+        if (!consultas.length) {
+
+            container.innerHTML = `
+                <div 
+                    style="
+                        text-align:center;
+                        padding:40px;
+                        color:var(--plum);
+                    "
+                >
+                    <div 
+                        style="
+                            font-size:30px;
+                            margin-bottom:10px;
+                        "
+                    >
+                        📅
+                    </div>
+
+                    <p>
+                        Nenhuma consulta agendada até o momento.
+                    </p>
+
+                </div>
+            `;
+
+            return;
+
+        }
+
+
+        // Monta os cards das consultas
+        consultas.forEach(consulta => {
+
+
+            const nomePaciente =
+                consulta.Paciente?.Usuario?.nome ||
+                consulta.Paciente?.nome ||
+                "Paciente";
+
+
+            const data =
+                consulta.data_consulta ||
+                consulta.data ||
+                consulta.dia ||
+                "Data não informada";
+
+
+            const hora =
+                consulta.hora ||
+                consulta.horario ||
+                "--:--";
+
+
+            const status =
+                consulta.status ||
+                "Confirmada";
+
+
+            const idConsulta =
+                consulta.id_consulta ||
+                consulta.id;
+
 
             const card = document.createElement("div");
 
-            card.style.background = "var(--white)";
-            card.style.border = "1px solid var(--border)";
-            card.style.borderLeft = `5px solid ${corStatus}`;
-            card.style.borderRadius = "8px";
-            card.style.padding = "16px";
-            card.style.boxShadow = "var(--shadow)";
-            card.style.display = "flex";
-            card.style.flexDirection = "column";
-            card.style.gap = "8px";
+            card.className = "consulta-card-item";
 
-            card.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <div>
-                        <div style="font-weight:700; color:var(--text); font-size:15px;">
-                            👤 Paciente: ${consulta.paciente}
-                        </div>
 
-                        <div style="font-size:12px; color:var(--muted); margin-top:2px;">
-                            Agendado em: ${consulta.dataRegistro || "Recente"}
-                        </div>
-                    </div>
+           card.innerHTML = `
 
-                    <span style="
-                        background:var(--plum-ghost);
-                        color:var(--plum);
-                        font-weight:700;
-                        font-size:13px;
-                        padding:4px 10px;
-                        border-radius:20px;">
-                        ⏰ ${consulta.hora}
-                    </span>
-                </div>
+    <div class="c-info">
 
-                <div style="
-                    background:var(--bg);
-                    padding:8px 12px;
-                    border-radius:6px;
-                    font-size:13px;
-                    color:var(--text);">
+        <div class="c-paciente">
+            ${nomePaciente}
+        </div>
 
-                    📅 Dia da consulta:
-                    <strong style="text-transform: capitalize;">
-                        ${consulta.dia}-feira
-                    </strong>
-                </div>
+        <div class="c-detalhes">
 
-                <div style="
-                    background:${fundoStatus};
-                    color:${corStatus};
-                    padding:8px 12px;
-                    border-radius:6px;
-                    font-size:13px;
-                    font-weight:700;">
+            <span>
+                🗓️ ${data}
+            </span>
 
-                    Status: ${statusAtual}
-                </div>
+            <span style="margin-left:15px;">
+                🕒 ${hora}
+            </span>
 
-                <div style="
-                    display:flex;
-                    justify-content:flex-end;
-                    gap:10px;
-                    margin-top:6px;
-                    flex-wrap:wrap;
-                    align-items: center;">
+            <span
+                style="
+                    margin-left:15px;
+                    color:green;
+                    font-weight:600;
+                "
+            >
+                ● ${status}
+            </span>
 
-                    ${statusAtual !== "Concluída" && statusAtual !== "Cancelada" ? `
-                        <button
-                            onclick="concluirConsulta(${index})"
-                            style="
-                                background:#10B981;
-                                color:white;
-                                border:none;
-                                padding:8px 12px;
-                                border-radius:6px;
-                                cursor:pointer;
-                                font-size:12px;
-                                font-weight:600;">
-                            ✔️ Concluir
-                        </button>
+        </div>
 
-                        <button
-                            onclick="reagendarConsulta(${index})"
-                            style="
-                                background:#F59E0B;
-                                color:white;
-                                border:none;
-                                padding:8px 12px;
-                                border-radius:6px;
-                                cursor:pointer;
-                                font-size:12px;
-                                font-weight:600;">
-                            🔄 Reagendar
-                        </button>
+    </div>
 
-                        <button
-                            onclick="cancelarConsulta(${index})"
-                            style="
-                                background:#DC2626;
-                                color:white;
-                                border:none;
-                                padding:8px 12px;
-                                border-radius:6px;
-                                cursor:pointer;
-                                font-size:12px;
-                                font-weight:600;">
-                            ❌ Cancelar
-                        </button>
-                    ` : ''}
+    <div class="c-actions">
 
-                    <a
-                        href="chat.html?tipo=psicologo&id=${consulta.id || index}"
-                        style="
-                            background:#4B5563;
-                            color:#fff;
-                            text-decoration:none;
-                            font-size:12px;
-                            font-weight:600;
-                            padding:8px 12px;
-                            border-radius:6px;
-                            display:inline-block;
-                            text-align:center;">
-                        💬 Chat
-                    </a>
+        <a
+            href="chat.html?tipo=psicologo&id=${idConsulta}"
+            class="btn-action-chat"
+        >
+            💬 Abrir Chat
+        </a>
 
-                    ${statusAtual !== "Concluída" && statusAtual !== "Cancelada" ? `
-                        <a
-                            href="https://meet.google.com/dek-fvjo-qyw"
-                            target="_blank"
-                            style="
-                                background:var(--plum);
-                                color:#fff;
-                                text-decoration:none;
-                                font-size:12px;
-                                font-weight:600;
-                                padding:8px 12px;
-                                border-radius:6px;">
-                            🎥 Entrar na Sala
-                        </a>
-                    ` : ''}
-                </div>
-            `;
+        <a
+            href="https://meet.google.com/"
+            target="_blank"
+            class="btn-action-meet"
+            style="
+                margin-left:10px;
+            "
+        >
+            🎥 Google Meet
+        </a>
 
-            containerCompleto.appendChild(card);
+    </div>
+
+`;
+
+
+            container.appendChild(card);
+
+
         });
+
+
+    } catch (erro) {
+
+
+        console.error(
+            "Erro ao carregar consultas:",
+            erro
+        );
+
+
+        container.innerHTML = `
+
+            <div 
+                style="
+                    text-align:center;
+                    padding:25px;
+                    color:#888;
+                "
+            >
+
+                Não foi possível carregar as consultas.
+
+            </div>
+
+        `;
+
+
     }
 
-    // ======================================================
-    // MARCAR COMO CONCLUÍDO
-    // ======================================================
-    window.concluirConsulta = function(index) {
-        if (!confirm("Deseja marcar esta consulta como Concluída? O paciente poderá avaliá-la no painel dele.")) return;
+}
+function configurarLogout() {
 
-        cadastro.consultasAgendadas[index].status = "Concluída";
+    const btnSair = document.getElementById("btn-sair");
 
-        localStorage.setItem("cadastroPsicologo", JSON.stringify(cadastro));
-        renderizarAbaConsultasExclusiva();
-        alert("Consulta concluída com sucesso!");
-    };
+    if (!btnSair) return;
 
-    window.cancelarConsulta = function(index) {
-        const confirmar = confirm("Deseja realmente cancelar esta consulta?");
+    btnSair.addEventListener("click", () => {
+
+        const confirmar = confirm(
+            "Deseja realmente sair da sua conta?"
+        );
+
         if (!confirmar) return;
 
-        cadastro.consultasAgendadas[index].status = "Cancelada";
 
-        localStorage.setItem("cadastroPsicologo", JSON.stringify(cadastro));
-        renderizarAbaConsultasExclusiva();
-        alert("Consulta cancelada com sucesso!");
-    };
+        // Limpa os dados da sessão
+        localStorage.removeItem("token");
+        localStorage.removeItem("token_jwt");
+        localStorage.removeItem("id_psicologo");
+        localStorage.removeItem("usuario");
 
-    window.reagendarConsulta = function(index) {
-        const novaData = prompt("Digite a nova data da consulta (DD/MM/AAAA):");
-        if (!novaData) return;
+        // Volta para o login
+        window.location.href = "login_psi.html";
 
-        const novoHorario = prompt("Digite o novo horário (HH:MM):");
-        if (!novoHorario) return;
+    });
 
-        cadastro.consultasAgendadas[index].dataRegistro = novaData;
-        cadastro.consultasAgendadas[index].hora = novoHorario;
-        cadastro.consultasAgendadas[index].status = "Reagendada";
+}
+function configurarNotificacoes() {
 
-        localStorage.setItem("cadastroPsicologo", JSON.stringify(cadastro));
-        renderizarAbaConsultasExclusiva();
-        alert("Consulta reagendada com sucesso!");
-    };
+    const btn = document.getElementById(
+        "btn-notificacoes"
+    );
 
-    // Inicializa a renderização inicial e contagem de itens
-    renderizarHorariosDashboard();
-    renderizarAbaConsultasExclusiva();
+    if (!btn) return;
 
-    // Adicionar horário pelo painel
-    window.openModal = function() {
-        const diaInput = prompt("Digite o dia desejado (Ex: segunda, terca, quarta, quinta, sexta, sabado ou domingo):");
-        if (!diaInput) return;
 
-        const diaFormatado = diaInput.trim().toLowerCase().replace("terça", "terca").replace("sábado", "sabado");
-        const validos = ["segunda", "terca", "quarta", "quinta", "sexta", "sabado", "domingo"];
-        
-        if (!validos.includes(diaFormatado)) {
-            alert("Dia inválido!");
-            return;
-        }
+    btn.addEventListener("click", () => {
 
-        const novoHorario = prompt(`Digite o horário para ${diaInput} (Formato HH:MM, ex: 14:00):`);
-        if (!novoHorario) return;
+        alert(
+            "Você não possui notificações no momento."
+        );
 
-        const horaFinal = novoHorario.trim();
-        if (!cadastro.agendaSemanal[diaFormatado].includes(horaFinal)) {
-            cadastro.agendaSemanal[diaFormatado].push(horaFinal);
-            cadastro.agendaSemanal[diaFormatado].sort();
+    });
 
-            localStorage.setItem("cadastroPsicologo", JSON.stringify(cadastro));
-            renderizarHorariosDashboard();
-        }
-    };
-
-    // Remover horário disponível manual
-    window.removerHorarioDiaAPI = function(dia, hora) {
-        if (!confirm(`Remover ${hora} de ${dia}?`)) return;
-        cadastro.agendaSemanal[dia] = cadastro.agendaSemanal[dia].filter(h => h !== hora);
-        localStorage.setItem("cadastroPsicologo", JSON.stringify(cadastro));
-        renderizarHorariosDashboard();
-    };
-});
+}

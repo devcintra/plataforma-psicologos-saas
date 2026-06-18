@@ -8,152 +8,384 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+/**
+ * DESCOBERTA AUTOMÁTICA DA URL (Suporte a Codespaces e Localhost)
+ */
+function descobrirBaseURL() {
+    const hostname = window.location.hostname;
+    if (hostname.includes("github.dev") || hostname.includes("app.github.dev")) {
+        return window.location.origin.replace(/-\d+\./, "-3000.") + "/api";
+    }
+    return "http://localhost:3000/api";
+}
+
+const API_BASE_URL = descobrirBaseURL();
+
+/**
+ * 1. BUSCA OS DADOS REAIS DO PSICÓLOGO VINDO DA API
+ */
 async function carregarDadosNoAgendamento() {
     try {
         const params = new URLSearchParams(window.location.search);
-        const psicologoId = params.get("id") || params.get("crp") || "recem-cadastrado";
+        // Captura o ID do psicólogo passado na URL (Ex: agendamento.html?id=3)
+        const psicologoId = params.get("id");
 
-        const respostaApi = await obtenerProfissionalParaAgendamentoAPI(psicologoId);
-
-        if (respostaApi.status === 200) {
-            const dadosPsicologo = respostaApi.data;
-            renderizarInformacoesDoAgendamento(dadosPsicologo);
-            montarSeletorDeDias(); // Cria a barra estética de dias da semana
+        if (!psicologoId) {
+            alert("Nenhum psicólogo foi selecionado para o agendamento.");
+            window.location.href = "listagem-psicologos.html";
+            return;
         }
+
+        // Consome o endpoint correto: GET /api/psicologos/{id}
+        const resposta = await fetch(`${API_BASE_URL}/psicologos/${psicologoId}`);
+        
+        if (!resposta.ok) {
+            throw new Error("Erro ao buscar dados do psicólogo na API.");
+        }
+
+        const dadosPsicologo = await resposta.json();
+        console.log(dadosPsicologo);
+        
+        // Armazena temporariamente no dataset para uso posterior na finalização
+        document.body.dataset.psicologoId = psicologoId;
+
+        // Renderiza as informações na tela
+        renderizarInformacoesDoAgendamento(dadosPsicologo);
+        
+        // Monta os horários disponíveis com base nos dados reais retornados
+        montarAgendaDoPsicologo(dadosPsicologo);
+
     } catch (error) {
         console.error("Erro ao carregar dados de agendamento:", error);
+        alert("Não foi possível carregar a agenda do psicólogo.");
     }
 }
 
-function obtenerProfissionalParaAgendamentoAPI(id) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const cadastroSessao = JSON.parse(localStorage.getItem("cadastroPsicologo"));
-            if (cadastroSessao) {
-                resolve({
-                    status: 200,
-                    data: {
-                        nome: `${cadastroSessao.nome || "Profissional"} ${cadastroSessao.sobrenome || ""}`,
-                        crp: cadastroSessao.crp || "00/00000",
-                        valor: parseFloat(cadastroSessao.valor) || 120.00,
-                        foto: cadastroSessao.foto || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=150"
-                    }
-                });
-            }
-        }, 200);
-    });
-}
-
-function renderizarInformacoesDoAgendamento(psi) {
-    if (document.getElementById("nome-psi")) document.getElementById("nome-psi").textContent = psi.nome;
-    if (document.getElementById("crp-psi")) document.getElementById("crp-psi").textContent = `CRP: ${psi.crp}`;
-    if (document.getElementById("avatar-psi") && psi.foto) document.getElementById("avatar-psi").src = psi.foto;
-
-    const precoFormatado = psi.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    if (document.getElementById("valor-psi")) document.getElementById("valor-psi").textContent = precoFormatado;
-    if (document.getElementById("total-consulta")) document.getElementById("total-consulta").textContent = precoFormatado;
-}
-
 /**
- * Cria os botões para escolha do dia da semana (Segunda a Domingo)
+ * 2. INJETA OS DADOS NO HTML (FOTO, NOME, CRP, VALOR)
  */
-function montarSeletorDeDias() {
-    const containerDias = document.getElementById("container-dias-semana");
-    if (!containerDias) return;
-    containerDias.innerHTML = "";
+function renderizarInformacoesDoAgendamento(psicologo) {
 
-    const diasChaves = ["segunda", "terca", "quarta", "quinta", "sexta", "sabado", "domingo"];
-    const diasNomes = {
-        "segunda": "Segunda", "terca": "Terça", "quarta": "Quarta",
-        "quinta": "Quinta", "sexta": "Sexta", "sabado": "Sábado", "domingo": "Domingo"
-    };
+    const nome =
+        psicologo.Usuario?.nome ||
+        "Psicólogo";
 
-    diasChaves.forEach(dia => {
-        const btnDia = document.createElement("button");
-        btnDia.classList.add("btn-day-select");
-        btnDia.textContent = diasNomes[dia];
-        btnDia.type = "button";
+    const crp =
+        psicologo.crp ||
+        "--";
 
-        btnDia.addEventListener("click", () => {
-            document.querySelectorAll(".btn-day-select").forEach(b => b.classList.remove("selected"));
-            btnDia.classList.add("selected");
-            
-            // Puxa e mostra os horários cadastrados para este dia específico
-            buscarHorariosDoDiaSelecionado(dia);
-        });
+    const valor =
+        parseFloat(
+            psicologo.valor_consulta || 0
+        );
 
-        containerDias.appendChild(btnDia);
-    });
+    const foto =
+        "../img/avatar-padrao.jpg";
+
+
+    const avatar =
+        document.getElementById(
+            "avatar-psi"
+        );
+
+    if (avatar) {
+
+        avatar.src = foto;
+
+    }
+
+
+    const nomeEl =
+        document.getElementById(
+            "nome-psi"
+        );
+
+    if (nomeEl) {
+
+        nomeEl.textContent =
+            nome;
+
+    }
+
+
+    const crpEl =
+        document.getElementById(
+            "crp-psi"
+        );
+
+    if (crpEl) {
+
+        crpEl.textContent =
+            `CRP ${crp}`;
+
+    }
+
+
+    const valorEl =
+        document.getElementById(
+            "valor-psi"
+        );
+
+    if (valorEl) {
+
+        valorEl.textContent =
+            `R$ ${valor
+                .toFixed(2)
+                .replace(".", ",")}`;
+
+    }
+
+
+    const total =
+        document.getElementById(
+            "total-consulta"
+        );
+
+    if (total) {
+
+        total.textContent =
+            `R$ ${valor
+                .toFixed(2)
+                .replace(".", ",")}`;
+
+    }
+
 }
-
 /**
- * Puxa dinamicamente os horários salvos no dashboard para o dia clicado
+ * 3. PROCESSA A AGENDA/DISPONIBILIDADE DO BACKEND E CORRIGE O SELETOR DE HORÁRIOS
  */
-function buscarHorariosDoDiaSelecionado(dia) {
-    const containerHorarios = document.getElementById("container-horarios-reais");
-    if (!containerHorarios) return;
-    containerHorarios.innerHTML = "";
+function montarAgendaDoPsicologo(psicologo) {
 
-    // Armazena o dia ativo no container
-    containerHorarios.dataset.diaSelecionado = dia;
-    containerHorarios.dataset.horaSelecionada = ""; // Limpa seleção antiga
+    const diasContainer =
+        document.getElementById(
+            "container-dias-semana"
+        );
 
-    const resumo = document.getElementById("resumo-horario");
-    if (resumo) resumo.textContent = "Nenhum horário selecionado";
+    const horariosContainer =
+        document.getElementById(
+            "container-horarios-reais"
+        );
 
-    const cadastroSessao = JSON.parse(localStorage.getItem("cadastroPsicologo"));
-    
-    if (!cadastroSessao || !cadastroSessao.agendaSemanal || !cadastroSessao.agendaSemanal[dia] || cadastroSessao.agendaSemanal[dia].length === 0) {
-        containerHorarios.innerHTML = `<span class="no-slots-msg">Não há horários disponíveis cadastrados para este dia.</span>`;
+    if (
+        !diasContainer ||
+        !horariosContainer
+    ) return;
+
+    diasContainer.innerHTML = "";
+
+    horariosContainer.innerHTML = "";
+
+    const disponibilidades =
+        psicologo.Disponibilidades || [];
+
+    if (!disponibilidades.length) {
+
+        horariosContainer.innerHTML =
+
+        `<span class="no-slots-msg">
+            Nenhuma disponibilidade cadastrada.
+        </span>`;
+
         return;
     }
 
-    const horasDisponiveis = cadastroSessao.agendaSemanal[dia];
+    const dias = [
 
-    horasDisponiveis.forEach(hora => {
-        const btnHora = document.createElement("button");
-        btnHora.classList.add("btn-hour");
-        btnHora.textContent = hora;
-        btnHora.type = "button";
+        ...new Set(
 
-        btnHora.addEventListener("click", () => {
-            document.querySelectorAll(".btn-hour").forEach(b => b.classList.remove("selected"));
-            btnHora.classList.add("selected");
-            containerHorarios.dataset.horaSelecionada = hora;
-            
-            if (resumo) {
-                const diaFormatado = dia.charAt(0).toUpperCase() + dia.slice(1);
-                resumo.textContent = `${diaFormatado}-feira às ${hora}`;
+            disponibilidades.map(
+
+                item => item.dia_semana
+
+            )
+
+        )
+
+    ];
+
+    dias.forEach(dia => {
+
+        const botao =
+            document.createElement(
+                "button"
+            );
+
+        botao.className =
+            "btn-day-select";
+
+        botao.textContent =
+            dia;
+
+        botao.addEventListener(
+            "click",
+
+            () => {
+
+                document
+                    .querySelectorAll(
+                        ".btn-day-select"
+                    )
+
+                    .forEach(btn => {
+
+                        btn.classList.remove(
+                            "selected"
+                        );
+
+                    });
+
+                botao.classList.add(
+                    "selected"
+                );
+
+                mostrarHorarios(
+                    dia,
+                    disponibilidades
+                );
+
             }
+
+        );
+
+        diasContainer.appendChild(
+            botao
+        );
+
+    });
+
+}
+function mostrarHorarios(
+    dia,
+    disponibilidades
+) {
+
+    const container =
+        document.getElementById(
+            "container-horarios-reais"
+        );
+
+    container.innerHTML = "";
+
+    const horarios =
+
+        disponibilidades.filter(
+
+            item =>
+
+            item.dia_semana === dia
+
+        );
+
+    horarios.forEach(item => {
+
+        const botao =
+            document.createElement(
+                "button"
+            );
+
+        botao.className =
+            "btn-hour";
+
+        botao.textContent =
+
+            item.hora_inicio
+                .substring(0,5);
+
+botao.addEventListener("click", () => {
+
+    document
+        .querySelectorAll(".btn-hour")
+        .forEach(btn => {
+            btn.classList.remove("selected");
         });
 
-        containerHorarios.appendChild(btnHora);
+    botao.classList.add("selected");
+
+    container.dataset.horaSelecionada =
+        item.hora_inicio;
+
+    document.getElementById(
+        "resumo-horario"
+    ).textContent =
+        `${dia} - ${item.hora_inicio.substring(0,5)}`;
+
+});
+
+        container.appendChild(
+            botao
+        );
+
     });
-}
 
+}
 /**
- * CORRIGIDO: Valida a escolha e passa a responsabilidade para a tela de confirmação
+ * 4. BUSCA E EXIBE O NOME DO PACIENTE LOGADO NA NAVBAR
  */
-function finalizarAgendamentoConsulta() {
-    const containerHorarios = document.getElementById("container-horarios-reais");
-    const horaSelecionada = containerHorarios ? containerHorarios.dataset.horaSelecionada : null;
-    const diaSelecionado = containerHorarios ? containerHorarios.dataset.diaSelecionado : null;
-
-    if (!horaSelecionada || !diaSelecionado) {
-        alert("Por favor, selecione um dia e um horário disponível antes de continuar.");
-        return;
-    }
-
-    // Avança para o Passo 2 enviando as escolhas de dia/hora por parâmetro URL de forma segura
-    window.location.href = `confirmacao.html?dia=${diaSelecionado}&hora=${horaSelecionada}`;
-}
-
 function preencherDadosDoPaciente() {
+    // Puxa o token para garantir autenticação
+    const token =
+    localStorage.getItem("token") ||
+    localStorage.getItem("token_jwt");
+    if (!token) return;
+
+    // Se você tiver dados básicos guardados no LocalStorage durante o login do paciente:
     const dadosPaciente = JSON.parse(localStorage.getItem("cadastro_pac"));
     if (dadosPaciente) {
         const welcomeNav = document.getElementById("nav-paciente-welcome");
-        if (welcomeNav && dadosPaciente.nome) {
-            welcomeNav.textContent = `Olá, ${dadosPaciente.nome}!`;
+        if (welcomeNav) {
+            welcomeNav.textContent = `Olá, ${dadosPaciente.nome || "Paciente"}!`;
         }
     }
+}
+
+/**
+ * 5. VALIDA A ESCOLHA E AVANÇA PARA A CONFIRMAÇÃO FINAL
+ */
+function finalizarAgendamentoConsulta() {
+
+    const container =
+        document.getElementById(
+            "container-horarios-reais"
+        );
+
+    const horario =
+        container?.dataset.horaSelecionada;
+
+    const psicologoId =
+        document.body.dataset.psicologoId;
+
+    const motivo =
+        document
+            .getElementById(
+                "motivo-consulta"
+            )
+            .value
+            .trim();
+
+    if (!horario) {
+
+        alert(
+            "Escolha um horário."
+        );
+
+        return;
+    }
+
+    sessionStorage.setItem(
+        "novoAgendamento",
+
+        JSON.stringify({
+
+            id_psicologo:
+                psicologoId,
+
+            horario,
+
+            motivo
+
+        })
+    );
+
+    window.location.href =
+        "confirmacao.html";
 }

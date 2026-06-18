@@ -1,166 +1,362 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Carrega os dados na tela mapeando o LocalStorage
-    const dadosAgendamento = carregarDadosFinaisDoAgendamento();
 
-    // 2. Configura os eventos dos botões de calendário se os dados existirem
-    if (dadosAgendamento) {
-        configurarBotoesCalendario(dadosAgendamento);
+    const dados = carregarDadosFinais();
+
+    if (!dados) return;
+
+    configurarCalendarios(dados);
+
+    const btnDashboard =
+        document.getElementById(
+            "btn-ir-dashboard"
+        );
+
+    if (btnDashboard) {
+
+        btnDashboard.addEventListener(
+            "click",
+
+            () => {
+
+                sessionStorage.removeItem(
+                    "ultimo_agendamento_sucesso"
+                );
+
+                window.location.href =
+                    "dashboard_pac.html";
+
+            }
+
+        );
+
     }
 
-    // Botão de redirecionamento para o Dashboard Real do Paciente
-    document.getElementById("btn-ir-dashboard").addEventListener("click", () => {
-        window.location.href = "dashboard_pac.html"; 
-    });
 });
 
-function carregarDadosFinaisDoAgendamento() {
-    const cadastroSessao = JSON.parse(localStorage.getItem("cadastroPsicologo"));
-    const dadosPaciente = JSON.parse(localStorage.getItem("cadastro_pac")) || {};
+function carregarDadosFinais() {
 
-    if (!cadastroSessao) {
-        alert("Nenhum agendamento ativo localizado.");
-        window.location.href = "index.html";
+    const dados = JSON.parse(
+
+        sessionStorage.getItem(
+            "ultimo_agendamento_sucesso"
+        )
+
+    );
+
+    if (!dados) {
+
+        alert(
+            "Nenhum agendamento encontrado."
+        );
+
+        window.location.href =
+            "dashboard_paciente.html";
+
         return null;
+
     }
 
-    const consultas = cadastroSessao.consultasAgendadas || [];
-    const ultimaConsulta = consultas[consultas.length - 1] || {};
+    const nomePsi =
+        dados.nomePsi || "Psicólogo";
 
-    // Preenche dados do profissional
-    const nomeCompletoPsi = `${cadastroSessao.nome || "Profissional"} ${cadastroSessao.sobrenome || ""}`;
-    document.getElementById("concluido-nome-psi").textContent = nomeCompletoPsi;
-    document.getElementById("concluido-crp-psi").textContent = `CRP: ${cadastroSessao.crp || "00/00000"}`;
-    document.getElementById("btn-nome-psi-curto").textContent = cadastroSessao.nome || "Profissional";
-    
-    if (cadastroSessao.foto) {
-        document.getElementById("concluido-avatar-psi").src = cadastroSessao.foto;
+    const data =
+        dados.data || "";
+
+    const hora =
+        dados.hora || "";
+
+    const nomeEl =
+        document.getElementById(
+            "concluido-nome-psi"
+        );
+
+    if (nomeEl) {
+
+        nomeEl.textContent =
+            nomePsi;
+
     }
 
-    // Tratamento do dia e hora
-    const dia = ultimaConsulta.dia || "segunda";
-    const hora = ultimaConsulta.hora || "14:00";
-    const diaFormatado = dia.charAt(0).toUpperCase() + dia.slice(1);
-    
-    document.getElementById("concluido-data-hora").textContent = `${diaFormatado}-feira às ${hora}`;
+    const horarioEl =
+        document.getElementById(
+            "concluido-data-hora"
+        );
 
-    // Preço e Método
-    const valorNumerico = parseFloat(cadastroSessao.valor) || 0;
-    const precoFormatado = valorNumerico.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    const metodoPagamento = ultimaConsulta.formaPagamento || "PIX";
-    document.getElementById("concluido-preco").innerHTML = `${precoFormatado} <span style="font-size: 13px; font-weight: 400; color: #7A6B90; margin-left: 4px;">Pago via ${metodoPagamento.toLowerCase()}</span>`;
+    if (horarioEl) {
 
-    // Dados do Paciente
-    const emailPac = ultimaConsulta.email || dadosPaciente.email || "Não informado";
-    const telPac = dadosPaciente.telefone || dadosPaciente.celular || "(11) 92132-4342";
-    document.getElementById("concluido-email-pac").textContent = emailPac;
-    document.getElementById("concluido-tel-pac").textContent = telPac;
-    
-    if (ultimaConsulta.paciente) {
-        const primeiroNome = ultimaConsulta.paciente.split(" ")[0];
-        document.getElementById("nav-paciente-welcome").textContent = `Olá, ${primeiroNome}!`;
+        horarioEl.textContent =
+
+            `${data} às ${hora}`;
+
+    }
+
+    const nomeCurto =
+        document.getElementById(
+            "btn-nome-psi-curto"
+        );
+
+    if (nomeCurto) {
+
+        nomeCurto.textContent =
+            nomePsi;
+
     }
 
     return {
-        titulo: `Consulta Psicológica - ${nomeCompletoPsi}`,
-        detalhes: `Atendimento online via Google Meet com ${nomeCompletoPsi}.`,
-        diaSemanaTexto: dia, 
-        horarioTexto: hora   
-    };
-}
 
-// --- FUNÇÕES DE INTEGRAÇÃO COM OS CALENDÁRIOS ---
+        titulo:
 
-function configurarBotoesCalendario(dados) {
-    const botoes = document.querySelectorAll(".btn-cal");
-    
-    botoes.forEach(btn => {
-        const texto = btn.textContent.toLowerCase();
-        
-        if (texto.includes("google")) {
-            btn.addEventListener("click", () => abrirGoogleCalendar(dados));
-        } else if (texto.includes("ical")) {
-            btn.addEventListener("click", () => baixarArquivoICal(dados));
-        }
-    });
-}
+            `Consulta com ${nomePsi}`,
 
-/**
- * Calcula a data do próximo dia da semana baseado no ano do projeto (2026)
- */
-function obterProximaData(diaSemana, horaStr) {
-    const mapeamentoDias = {
-        "domingo": 0, "segunda": 1, "terca": 2, "terça": 2,
-        "quarta": 3, "quinta": 4, "sexta": 5, "sabado": 6, "sábado": 6
+        dataConsulta:
+
+            data,
+
+        horarioTexto:
+
+            hora.substring(0, 5),
+
+        detalhes:
+
+            "Consulta online PsiConnect"
+
     };
 
-    const diaAlvo = mapeamentoDias[diaSemana.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")] || 1;
-    
-    // Define a base temporal partindo do momento atual em 2026
-    const dataResultado = new Date();
-    dataResultado.setFullYear(2026); 
-    
-    let diasFaltantes = (diaAlvo - dataResultado.getDay() + 7) % 7;
-    if (diasFaltantes === 0) diasFaltantes = 7; 
-
-    dataResultado.setDate(dataResultado.getDate() + diasFaltantes);
-
-    const [horas, minutos] = horaStr.split(":").map(Number);
-    dataResultado.setHours(horas, minutos, 0, 0);
-
-    return dataResultado;
 }
 
-function formatarDataISO(date) {
-    return date.toISOString().replace(/-|:|\.\d\d\d/g, "");
+function configurarCalendarios(
+    dados
+) {
+
+    const google =
+
+        document.querySelector(
+            ".btn-agenda.google"
+        );
+
+    const apple =
+
+        document.querySelector(
+            ".btn-agenda.apple"
+        );
+
+    if (google) {
+
+        google.addEventListener(
+
+            "click",
+
+            () => {
+
+                abrirGoogleCalendar(
+                    dados
+                );
+
+            }
+
+        );
+
+    }
+
+    if (apple) {
+
+        apple.addEventListener(
+
+            "click",
+
+            () => {
+
+                baixarArquivoICal(
+                    dados
+                );
+
+            }
+
+        );
+
+    }
+
 }
 
-function abrirGoogleCalendar(dados) {
-    const dataInicio = obterProximaData(dados.diaSemanaTexto, dados.horarioTexto);
-    const dataFim = new Date(dataInicio.getTime() + 50 * 60 * 1000); // 50 min de sessão
+function obterDataConsulta(
+    data,
+    horario
+) {
 
-    const dataInicioISO = formatarDataISO(dataInicio);
-    const dataFimISO = formatarDataISO(dataFim);
+    const dataHora =
 
-    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE` +
-                `&text=${encodeURIComponent(dados.titulo)}` +
-                `&dates=${dataInicioISO}/${dataFimISO}` +
-                `&details=${encodeURIComponent(dados.detalhes)}` +
-                `&location=${encodeURIComponent("Online (Google Meet)")}` +
-                `&sf=true&output=xml`;
+        new Date(
+            `${data}T${horario}`
+        );
 
-    window.open(url, "_blank");
+    return dataHora;
+
 }
 
-function baixarArquivoICal(dados) {
-    const dataInicio = obterProximaData(dados.diaSemanaTexto, dados.horarioTexto);
-    const dataFim = new Date(dataInicio.getTime() + 50 * 60 * 1000);
+function formatarISO(
+    data
+) {
 
-    const dataInicioISO = formatarDataISO(dataInicio);
-    const dataFimISO = formatarDataISO(dataFim);
-    const dataCriacaoISO = formatarDataISO(new Date());
+    return data
 
-    const conteudoICal = [
+        .toISOString()
+
+        .replace(
+            /-|:|\.\d\d\d/g,
+            ""
+        );
+
+}
+
+function abrirGoogleCalendar(
+    dados
+) {
+
+    const inicio =
+
+        obterDataConsulta(
+
+            dados.dataConsulta,
+
+            dados.horarioTexto
+
+        );
+
+    const fim =
+
+        new Date(
+
+            inicio.getTime()
+
+            +
+
+            50 * 60 * 1000
+
+        );
+
+    const url =
+
+        `https://calendar.google.com/calendar/render?action=TEMPLATE`
+
+        +
+
+        `&text=${encodeURIComponent(dados.titulo)}`
+
+        +
+
+        `&dates=${formatarISO(inicio)}/${formatarISO(fim)}`
+
+        +
+
+        `&details=${encodeURIComponent(dados.detalhes)}`
+
+        +
+
+        `&location=${encodeURIComponent("Online (Google Meet)")}`;
+
+    window.open(
+        url,
+        "_blank"
+    );
+
+}
+
+function baixarArquivoICal(
+    dados
+) {
+
+    const inicio =
+
+        obterDataConsulta(
+
+            dados.dataConsulta,
+
+            dados.horarioTexto
+
+        );
+
+    const fim =
+
+        new Date(
+
+            inicio.getTime()
+
+            +
+
+            50 * 60 * 1000
+
+        );
+
+    const conteudo = [
+
         "BEGIN:VCALENDAR",
+
         "VERSION:2.0",
-        "PRODID:-//PsiConnect//Agendamentos//PT",
+
+        "PRODID:-//PsiConnect//PT",
+
         "BEGIN:VEVENT",
+
         `UID:${Date.now()}@psiconnect.com`,
-        `DTSTAMP:${dataCriacaoISO}`,
-        `DTSTART:${dataInicioISO}`,
-        `DTEND:${dataFimISO}`,
+
+        `DTSTAMP:${formatarISO(new Date())}`,
+
+        `DTSTART:${formatarISO(inicio)}`,
+
+        `DTEND:${formatarISO(fim)}`,
+
         `SUMMARY:${dados.titulo}`,
+
         `DESCRIPTION:${dados.detalhes}`,
+
         "LOCATION:Online (Google Meet)",
+
         "END:VEVENT",
+
         "END:VCALENDAR"
+
     ].join("\r\n");
 
-    const blob = new Blob([conteudoICal], { type: "text/calendar;charset=utf-8;" });
-    const link = document.createElement("a");
-    
-    link.href = URL.createObjectURL(blob);
-    link.setAttribute("download", "consulta-psiconnect.ics");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const blob =
+
+        new Blob(
+
+            [conteudo],
+
+            {
+
+                type:
+
+                    "text/calendar;charset=utf-8"
+
+            }
+
+        );
+
+    const a =
+
+        document.createElement(
+            "a"
+        );
+
+    a.href =
+
+        URL.createObjectURL(
+            blob
+        );
+
+    a.download =
+
+        "consulta_psiconnect.ics";
+
+    document.body.appendChild(
+        a
+    );
+
+    a.click();
+
+    document.body.removeChild(
+        a
+    );
+
 }
