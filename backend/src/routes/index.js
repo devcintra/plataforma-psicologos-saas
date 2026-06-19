@@ -9,6 +9,8 @@ const { avaliar, listarPorPsicologo } = require('../controllers/avaliacaoControl
 const { enviar, historico } = require('../controllers/mensagemController');
 const { listar: listarDisponibilidade, criar: criarDisponibilidade, remover: removerDisponibilidade } = require('../controllers/disponibilidadeController');
 
+const { realizarTriagem } = require('../controllers/iaController');
+
 // ── Auth ──────────────────────────────────────────
 router.post('/auth/cadastro', cadastrar);
 router.post('/auth/login', login);
@@ -36,5 +38,8 @@ router.get('/mensagens/:id_psicologo/:id_paciente', proteger, historico);
 router.get('/disponibilidade/:id_psicologo', listarDisponibilidade);
 router.post('/disponibilidade', proteger, restringir('psicologo'), criarDisponibilidade);
 router.delete('/disponibilidade/:id', proteger, restringir('psicologo'), removerDisponibilidade);
+
+// ── Inteligência Artificial ───────────────────────
+router.post('/triagem-ia', proteger, realizarTriagem);
 
 module.exports = router;
