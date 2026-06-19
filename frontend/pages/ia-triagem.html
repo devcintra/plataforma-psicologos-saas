@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistente de Triagem - PsiConnect</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: 90vh; }
+        .header { background: #007bff; color: #fff; padding: 15px; text-align: center; border-radius: 10px 10px 0 0; }
+        .chat-area { flex: 1; padding: 20px; overflow-y: auto; background: #fafafa; }
+        .mensagem { margin-bottom: 15px; max-width: 70%; line-height: 1.5; padding: 10px 15px; border-radius: 15px; }
+        .mensagem.usuario { background: #007bff; color: white; margin-left: auto; border-bottom-right-radius: 0; }
+        .mensagem.ia { background: #e9ecef; color: #333; margin-right: auto; border-bottom-left-radius: 0; }
+        .input-area { display: flex; padding: 15px; border-top: 1px solid #ddd; background: #fff; border-radius: 0 0 10px 10px; }
+        input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-right: 10px; font-size: 16px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #0056b3; }
+        
+        /* Estilos para os cards dos psicólogos */
+        .cards-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+        .card-psicologo { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 10px; width: 200px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .card-psicologo h4 { margin: 5px 0; font-size: 16px; color: #007bff; }
+        .tag-especialidade { font-size: 12px; background: #e9ecef; padding: 3px 8px; border-radius: 10px; display: inline-block; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h2>Assistente de Triagem PsiConnect</h2>
+            <p>Conte o que está sentindo e encontraremos o profissional ideal.</p>
+        </div>
+
+        <div class="chat-area" id="chatArea">
+            <div class="mensagem ia">
+                Olá! Sou o assistente virtual do PsiConnect. Como você tem se sentido ultimamente? Sinta-se à vontade para compartilhar.
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="inputRelato" placeholder="Digite aqui o seu relato..." autocomplete="off">
+            <button id="btnEnviar">Enviar</button>
+        </div>
+    </div>
+
+    <script src="../js/ia-triagem.js"></script>
+</body>
+</html>

@@ -449,3 +449,25 @@ h1, h2, h3, .brand-titulo {
     transition: all 0.2s;
 }
 .btn-voltar:hover { background-color: var(--plum-g); border-color: var(--plum); }
+/* Estilo para o botão de IA na listagem */
+.btn-ia-triagem {
+    display: inline-block;
+    background: linear-gradient(135deg, #7b2cbf 0%, #9d4edd 100%);
+    color: #ffffff;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(123, 44, 191, 0.2);
+    border: none;
+    cursor: pointer;
+}
+
+.btn-ia-triagem:hover {
+    background: linear-gradient(135deg, #5a189a 0%, #7b2cbf 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(123, 44, 191, 0.3);
+    color: #ffffff;
+}
