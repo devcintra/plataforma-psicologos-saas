@@ -177,24 +177,53 @@ const login = async (req, res) => {
 
 // GET /api/auth/perfil
 const perfil = async (req, res) => {
-  try {
+    try {
+        const usuario = req.usuario;
 
-    const usuario = await Usuario.findByPk(
-      req.usuario.id_usuario
-    );
+        let dadosPerfil = {
+            id_usuario: usuario.id_usuario,
+            nome: usuario.nome,
+            email: usuario.email,
+            tipo_usuario: usuario.tipo_usuario,
+            telefone: usuario.telefone
+        };
 
-    const dadosUsuario = await montarDadosUsuario(usuario);
+        if (usuario.tipo_usuario === "paciente") {
 
-    res.json({
-      usuario: dadosUsuario
-    });
+            const paciente = await Paciente.findOne({
+                where: {
+                    id_usuario: usuario.id_usuario
+                }
+            });
 
-  } catch (erro) {
-    res.status(500).json({
-      erro: 'Erro ao buscar perfil.',
-      detalhe: erro.message
-    });
-  }
+            if (paciente) {
+                dadosPerfil.id_paciente = paciente.id_paciente;
+            }
+
+        } else if (usuario.tipo_usuario === "psicologo") {
+
+            const psicologo = await Psicologo.findOne({
+                where: {
+                    id_usuario: usuario.id_usuario
+                }
+            });
+
+            if (psicologo) {
+                dadosPerfil.id_psicologo = psicologo.id_psicologo;
+            }
+        }
+
+        res.json({
+            usuario: dadosPerfil
+        });
+
+    } catch (erro) {
+        console.error("Erro ao buscar perfil:", erro);
+
+        res.status(500).json({
+            erro: "Erro ao buscar perfil."
+        });
+    }
 };
 
 

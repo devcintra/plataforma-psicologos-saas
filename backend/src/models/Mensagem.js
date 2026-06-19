@@ -25,6 +25,10 @@ const Mensagem = sequelize.define('Mensagem', {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
+  remetente: {
+    type: DataTypes.ENUM('paciente', 'psicologo'),
+    allowNull: false
+}
 }, {
   tableName: 'Mensagem',
 });

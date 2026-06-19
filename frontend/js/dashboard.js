@@ -687,7 +687,7 @@ async function carregarConsultas() {
     <div class="c-actions">
 
         <a
-            href="chat.html?tipo=psicologo&id=${idConsulta}"
+            href="chat.html?tipo=psicologo&id=${consulta.id_paciente}"
             class="btn-action-chat"
         >
             💬 Abrir Chat

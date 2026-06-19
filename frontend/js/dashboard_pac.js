@@ -60,7 +60,10 @@ async function inicializarDashboard() {
         }
 
         const dados = await resposta.json();
-        const usuario = dados.usuario;
+
+        console.log(dados);
+
+        const usuario = dados.usuario.dataValues || dados.usuario;
 
         preencherPerfil(usuario);
 
@@ -73,20 +76,16 @@ async function inicializarDashboard() {
 }
 
 function preencherPerfil(usuario) {
-
     const navWelcome = document.getElementById("nav-welcome");
+
     if (navWelcome) {
         navWelcome.textContent = `Olá, ${usuario.nome}!`;
     }
 
     const txtBoasVindas = document.getElementById("txt-boas-vindas");
+
     if (txtBoasVindas) {
         txtBoasVindas.textContent = `Olá, ${usuario.nome}!`;
-    }
-
-    const lblDataDesde = document.getElementById("lbl-data-desde");
-    if (lblDataDesde) {
-        lblDataDesde.textContent = "Membro PsiConnect";
     }
 }
 
@@ -229,6 +228,12 @@ function atualizarDashboardConsultas(consultas = []) {
                 Inicia chamada
 
             </a>
+            <a
+    href="chat.html?tipo=paciente&id=${consulta.id_psicologo}"
+    class="btn-action btn-chat"
+>
+    💬 Abrir Chat
+</a>
 
         </div>
 
@@ -274,7 +279,8 @@ historicoConsultas.forEach(consulta => {
 async function cancelarConsulta(idConsulta){
 
     const token =
-    localStorage.getItem("token");
+    localStorage.getItem("token") ||
+    localStorage.getItem("token_jwt");
 
     try{
 
@@ -306,6 +312,7 @@ async function cancelarConsulta(idConsulta){
 
         const dados =
         await resposta.json();
+        alert(JSON.stringify(dados));
 
         if(!resposta.ok){
 

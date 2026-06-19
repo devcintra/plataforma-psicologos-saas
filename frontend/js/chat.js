@@ -2,9 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
     inicializarSistemaDeChat();
 });
 
-/**
- * DESCOBERTA AUTOMÁTICA DA URL (Suporte a Codespaces e Localhost)
- */
+/* ======================================
+   DESCOBERTA AUTOMÁTICA DA URL
+====================================== */
 function descobrirBaseURL() {
     const hostname = window.location.hostname;
     if (hostname.includes("github.dev") || hostname.includes("app.github.dev")) {
@@ -15,62 +15,74 @@ function descobrirBaseURL() {
 
 const API_BASE_URL = descobrirBaseURL();
 
-// Variáveis de controle de estado global
+// Variáveis de controle global
 let usuarioTipo = "";       // "paciente" ou "psicologo"
-let idDestinatario = null;   // ID do outro usuário com quem se está a conversar
-let idUsuarioLogado = null;  // ID de quem está com a sessão ativa
-let intervaloSync = null;    // Guarda o timer do Polling assíncrono
+let idDestinatario = null;   // ID com quem se está a conversar
+let idPerfilLogado = null;  // ID de quem tem a sessão ativa
+let intervaloSync = null;    // Timer do Polling
 
-/**
- * 1. INICIALIZA O CHAT EXTRAINDO OS DADOS DA URL E DO JWT
- */
+/* ======================================
+   1. INICIALIZAR CHAT
+====================================== */
 async function inicializarSistemaDeChat() {
     const params = new URLSearchParams(window.location.search);
     usuarioTipo = params.get("tipo") || "paciente";
     
-    // Captura o ID do psicólogo ou paciente alvo passado via query string (Ex: chat.html?tipo=paciente&comId=5)
+    // Captura o ID do alvo via query string
     idDestinatario = parseInt(params.get("comId") || params.get("id"));
 
-    // Recupera o Token do armazenamento local para autenticação
-    const token = localStorage.getItem("token_jwt");
+    const token = localStorage.getItem("token") || localStorage.getItem("token_jwt");
     if (!token) {
         alert("Sessão expirada ou utilizador não autenticado. Retornando ao login.");
         window.location.href = usuarioTipo === "paciente" ? "login_pac.html" : "login_psi.html";
         return;
     }
 
-    // Decodifica a identidade do utilizador logado através das informações salvas
     try {
-        const payloadSalvo = usuarioTipo === "paciente" 
-            ? JSON.parse(localStorage.getItem("cadastro_pac")) 
-            : JSON.parse(localStorage.getItem("cadastroPsicologo"));
-            
-        idUsuarioLogado = payloadSalvo ? (payloadSalvo.id || payloadSalvo.id_usuario) : null;
-        
-        // Configura elementos visuais do cabeçalho da conversa
-        configurarInterfaceCabeçalho(payloadSalvo);
+        const resposta = await fetch(`${API_BASE_URL}/auth/perfil`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
 
-        // Faz a primeira carga de mensagens
+        const dados = await resposta.json();
+
+        // Pega o ID correto baseado no tipo de usuário logado
+        if (dados.usuario.tipo_usuario === "paciente") {
+            idPerfilLogado = dados.usuario.id_paciente || dados.usuario.id_usuario;
+        } else {
+            idPerfilLogado = dados.usuario.id_psicologo || dados.usuario.id_usuario;
+        }
+
+        configurarInterfaceCabeçalho();
+
         await carregarEMostrarMensagensAPI();
 
-        // Ativa os escutadores de envio (Botão clique e Tecla Enter)
-        document.getElementById("btn-enviar-mensagem").addEventListener("click", capturarEEnviarMensagemAPI);
-        document.getElementById("input-mensagem-texto").addEventListener("keyup", (e) => {
+        document.getElementById("btn-enviar-mensagem")?.addEventListener("click", capturarEEnviarMensagemAPI);
+        document.getElementById("input-mensagem-texto")?.addEventListener("keyup", (e) => {
             if (e.key === "Enter") capturarEEnviarMensagemAPI();
         });
 
-        // Configura o Polling Automático (Sincroniza novas mensagens a cada 3 segundos)
+        // Polling para sincronizar mensagens a cada 3 segundos
         intervaloSync = setInterval(carregarEMostrarMensagensAPI, 3000);
 
+        const btnVoltar = document.getElementById("btn-voltar-painel");
+        if (btnVoltar) {
+            btnVoltar.addEventListener("click", () => {
+                if (usuarioTipo === "paciente") {
+                    window.location.href = "dashboard_pac.html";
+                } else {
+                    window.location.href = "dashboard_psi.html";
+                }
+            });
+        }
     } catch (erro) {
         console.error("Erro ao montar estrutura do chat:", erro);
     }
 }
 
-/**
- * 2. CONFIGURA O CABEÇALHO DINAMICAMENTE
- */
-function configurarInterfaceCabeçalho(dadosLogado) {
+/* ======================================
+   2. CABEÇALHO DA INTERFACE
+====================================== */
+function configurarInterfaceCabeçalho() {
     const nomeInteracao = document.getElementById("interacao-nome");
     if (nomeInteracao) {
         nomeInteracao.textContent = usuarioTipo === "paciente" ? "Seu Psicólogo" : "Paciente em Atendimento";
@@ -82,22 +94,32 @@ function configurarInterfaceCabeçalho(dadosLogado) {
     }
 }
 
-/**
- * 3. CONSOME O ENDPOINT GET /api/mensagens/{usuario1}/{usuario2}
- */
+/* ======================================
+   3. BUSCAR MENSAGENS (GET)
+====================================== */
 async function carregarEMostrarMensagensAPI() {
-    if (!idUsuarioLogado || !idDestinatario) return;
+    if (!idPerfilLogado || !idDestinatario) return;
 
-    const token = localStorage.getItem("token_jwt");
+    const token = localStorage.getItem("token") || localStorage.getItem("token_jwt");
     const caixa = document.getElementById("caixa-mensagens-chat");
     if (!caixa) return;
 
-    // Detecta se o utilizador já está no final do scroll para manter a rolagem automática
     const estaNoFinal = (caixa.scrollHeight - caixa.scrollTop <= caixa.clientHeight + 50);
 
     try {
-        // Endpoint documentado: GET /api/mensagens/{usuario1}/{usuario2}
-        const resposta = await fetch(`${API_BASE_URL}/mensagens/${idUsuarioLogado}/${idDestinatario}`, {
+        let idPsicologo;
+        let idPaciente;
+
+        // Estrutura as variáveis para casar com a rota do backend: /:id_psicologo/:id_paciente
+        if (usuarioTipo === "paciente") {
+            idPaciente = idPerfilLogado;
+            idPsicologo = idDestinatario;
+        } else {
+            idPsicologo = idPerfilLogado;
+            idPaciente = idDestinatario;
+        }
+
+        const resposta = await fetch(`${API_BASE_URL}/mensagens/${idPsicologo}/${idPaciente}`, {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${token}`,
@@ -115,33 +137,30 @@ async function carregarEMostrarMensagensAPI() {
             return;
         }
 
-        // Renderiza cada balão de mensagem dinamicamente de acordo com o remetente
         listaMensagens.forEach(msg => {
             const row = document.createElement("div");
-            row.className = "message-row";
+            row.className = "msg-row";
 
-            // Se o id_remetente for igual ao meu ID, o balão vai para a direita ("sent")
-            if (msg.id_remetente === idUsuarioLogado) {
+            // O backend agora nos diz exatamente quem é o remetente!
+            if (msg.remetente === usuarioTipo) {
                 row.classList.add("sent");
             } else {
                 row.classList.add("received");
             }
 
-            // Tratamento amigável da hora de envio
-            const horaFormatada = msg.created_at 
-                ? new Date(msg.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+            const horaFormatada = msg.data_envio 
+                ? new Date(msg.data_envio).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) 
                 : "Agora";
 
             row.innerHTML = `
                 <div class="msg-bubble">
-                    ${msg.conteudo || msg.texto}
+                    ${msg.texto}
                     <span class="msg-time">${horaFormatada}</span>
                 </div>
             `;
             caixa.appendChild(row);
         });
 
-        // Rola automaticamente para a última mensagem se necessário
         if (estaNoFinal) {
             caixa.scrollTop = caixa.scrollHeight;
         }
@@ -151,26 +170,24 @@ async function carregarEMostrarMensagensAPI() {
     }
 }
 
-/**
- * 4. DISPARA O POST /api/mensagens PARA ENVIAR TEXTOS REALMENTE AO BANCO
- */
+/* ======================================
+   4. ENVIAR MENSAGEM (POST)
+====================================== */
 async function capturarEEnviarMensagemAPI() {
     const input = document.getElementById("input-mensagem-texto");
     if (!input) return;
 
     const textoMensagem = input.value.trim();
-    if (!textoMensagem) return; // Ignora inputs vazios
+    if (!textoMensagem) return;
 
-    const token = localStorage.getItem("token_jwt");
-
-    // Bloqueia temporariamente o input para evitar duplo clique acidental
+    const token = localStorage.getItem("token") || localStorage.getItem("token_jwt");
     input.disabled = true;
 
     try {
-        // Payload estruturado conforme a especificação do backend
+        // Envia APENAS o texto e o destinatário. O backend faz o resto!
         const payloadMensagem = {
             id_destinatario: idDestinatario,
-            conteudo: textoMensagem
+            texto: textoMensagem
         };
 
         const resposta = await fetch(`${API_BASE_URL}/mensagens`, {
@@ -183,11 +200,12 @@ async function capturarEEnviarMensagemAPI() {
         });
 
         if (resposta.ok) {
-            input.value = ""; // Limpa a barra de digitação
-            await carregarEMostrarMensagensAPI(); // Força atualização imediata da tela
+            input.value = ""; 
+            await carregarEMostrarMensagensAPI(); 
         } else {
             const erroRes = await resposta.json();
-            alert(erroRes.erro || "Falha ao entregar mensagem.");
+            alert(`Erro: ${erroRes.erro}\n\nDetalhe do Banco: ${erroRes.detalhe}`);
+            console.log("Erro completo:", erroRes);
         }
     } catch (erro) {
         console.error("Erro no envio do chat:", erro);
@@ -198,7 +216,7 @@ async function capturarEEnviarMensagemAPI() {
     }
 }
 
-// Garante a limpeza do timer ao sair da página para evitar vazamento de memória (Memory Leak)
+// Limpa a sincronização ao sair
 window.addEventListener("beforeunload", () => {
     if (intervaloSync) clearInterval(intervaloSync);
 });
