@@ -45,7 +45,6 @@ async function chamarGemini(relatoPaciente) {
 
     let textoJson = data.candidates[0].content.parts[0].text;
     
-    // Limpeza por garantia
     textoJson = textoJson.replace(/```json/gi, "").replace(/```/g, "").trim();
     
     return JSON.parse(textoJson);
@@ -58,13 +57,11 @@ exports.realizarTriagem = async (req, res) => {
             return res.status(400).json({ erro: "O relato é obrigatório." });
         }
 
-        // 1. Envia o relato para o Google Gemini
         const resultadoIa = await chamarGemini(relato);
         
         const mensagemAcolhedora = resultadoIa.analise;
         const especialidadeIdentificada = resultadoIa.categoria;
 
-        // 2. Busca os psicólogos no Banco de Dados com base no que o Gemini decidiu
         let filtroEspecialidade = {};
         if (especialidadeIdentificada && especialidadeIdentificada !== 'Outros') {
             filtroEspecialidade = {
@@ -80,7 +77,7 @@ exports.realizarTriagem = async (req, res) => {
         },
         {
             model: Especialidade,
-            as: 'Especialidades', // 🛠️ Mudado para "E" maiúsculo para bater com o seu Model!
+            as: 'Especialidades', 
             where: Object.keys(filtroEspecialidade).length > 0 ? filtroEspecialidade : undefined,
             through: { attributes: [] }
         }
@@ -88,7 +85,7 @@ exports.realizarTriagem = async (req, res) => {
     limit: 3
 });
 
-        // 3. Retorna a resposta limpa para o seu Frontend
+        
         return res.status(200).json({
             mensagem: mensagemAcolhedora,
             psicologos: psicologos

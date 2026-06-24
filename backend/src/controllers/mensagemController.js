@@ -37,12 +37,11 @@ const enviar = async (req, res) => {
             return res.status(403).json({ erro: "Tipo de usuário não permitido para chat." });
         }
 
-        // Agora sim, com os IDs corretos e validados, salvamos no banco!
         const mensagem = await Mensagem.create({
             id_psicologo,
             id_paciente,
             texto,
-            remetente: usuarioLogado.tipo_usuario // A cereja do bolo que arruma os balões
+            remetente: usuarioLogado.tipo_usuario 
         });
 
         res.status(201).json({ mensagem });

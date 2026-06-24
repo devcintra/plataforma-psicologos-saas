@@ -8,9 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-/**
- * DESCOBERTA AUTOMÁTICA DA URL (Suporte a Codespaces e Localhost)
- */
+
 function descobrirBaseURL() {
     const hostname = window.location.hostname;
     if (hostname.includes("github.dev") || hostname.includes("app.github.dev")) {
@@ -21,9 +19,7 @@ function descobrirBaseURL() {
 
 const API_BASE_URL = descobrirBaseURL();
 
-/**
- * 1. BUSCA OS DADOS REAIS DO PSICÓLOGO VINDO DA API
- */
+
 async function carregarDadosNoAgendamento() {
     try {
         const params = new URLSearchParams(window.location.search);
@@ -61,9 +57,7 @@ async function carregarDadosNoAgendamento() {
     }
 }
 
-/**
- * 2. INJETA OS DADOS NO HTML (FOTO, NOME, CRP, VALOR)
- */
+
 function renderizarInformacoesDoAgendamento(psicologo) {
 
     const nome =
@@ -151,9 +145,7 @@ function renderizarInformacoesDoAgendamento(psicologo) {
     }
 
 }
-/**
- * 3. PROCESSA A AGENDA/DISPONIBILIDADE DO BACKEND E CORRIGE O SELETOR DE HORÁRIOS
- */
+
 function montarAgendaDoPsicologo(psicologo) {
 
     const diasContainer =
@@ -318,9 +310,7 @@ botao.addEventListener("click", () => {
     });
 
 }
-/**
- * 4. BUSCA E EXIBE O NOME DO PACIENTE LOGADO NA NAVBAR
- */
+
 function preencherDadosDoPaciente() {
     // Puxa o token para garantir autenticação
     const token =
@@ -328,7 +318,6 @@ function preencherDadosDoPaciente() {
     localStorage.getItem("token_jwt");
     if (!token) return;
 
-    // Se você tiver dados básicos guardados no LocalStorage durante o login do paciente:
     const dadosPaciente = JSON.parse(localStorage.getItem("cadastro_pac"));
     if (dadosPaciente) {
         const welcomeNav = document.getElementById("nav-paciente-welcome");
@@ -338,9 +327,7 @@ function preencherDadosDoPaciente() {
     }
 }
 
-/**
- * 5. VALIDA A ESCOLHA E AVANÇA PARA A CONFIRMAÇÃO FINAL
- */
+
 function finalizarAgendamentoConsulta() {
 
     const container =

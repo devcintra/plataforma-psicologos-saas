@@ -3,9 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     configurarFormularioCadastro();
 });
 
-/**
- * FUNÇÃO AUXILIAR: Descobre dinamicamente a URL da API no Codespaces ou Localhost
- */
+
 function obterBaseURL() {
     const urlAtual = window.location.href;
     if (urlAtual.includes("app.github.dev")) {
@@ -18,9 +16,7 @@ function obterBaseURL() {
 
 const BASE_URL = obterBaseURL();
 
-/**
- * 1. APLICAÇÃO DE MÁSCARAS EM TEMPO REAL NOS CAMPOS DO SEU HTML
- */
+
 function inicializarMascaras() {
     const inputCpf = document.getElementById("cpf-pac");
     const inputCelular = document.getElementById("celular-pac");
@@ -57,9 +53,6 @@ function inicializarMascaras() {
     }
 }
 
-/**
- * 2. INTEGRAÇÃO REAL COM A API DE CADASTRO
- */
 function configurarFormularioCadastro() {
     const formulario = document.getElementById("form-cadastro-paciente");
     
@@ -85,16 +78,11 @@ function configurarFormularioCadastro() {
             const periodosSelecionados = Array.from(document.querySelectorAll('input[name="horario"]:checked')).map(el => el.value);
             const precoMaximo = document.getElementById("preco-pac")?.value || "";
 
-            // Montagem do payload enviado para a API (Bate com as validações do Postman!)
             const payloadPaciente = {
                 nome: nomeInput.value.trim(),
                 email: emailInput.value.trim(),
                 senha: senhaInput.value.trim(),
-                tipo_usuario: "paciente" // Exigido pelo seu backend
-                // Nota: Caso seu banco aceite CPF, Celular, etc., você pode passar abaixo:
-                // cpf: cpfInput.value.replace(/\D/g, ""), 
-                // celular: celularInput.value.replace(/\D/g, ""),
-                // cep: cepInput.value.replace(/\D/g, "")
+                tipo_usuario: "paciente" 
             };
 
             try {
@@ -112,7 +100,6 @@ function configurarFormularioCadastro() {
                 if (resposta.status === 201) {
                     alert("Conta de paciente criada com sucesso!");
                     
-                    // Opcional: Se quiser manter os dados extras guardados localmente para a sua Dashboard, mantém a linha:
                     localStorage.setItem("cadastro_pac_detalhes", JSON.stringify({
                         cpf: cpfInput.value,
                         celular: celularInput?.value,

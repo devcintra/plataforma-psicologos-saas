@@ -2,9 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
     configurarFormularioLogin();
 });
 
-/**
- * FUNÇÃO AUXILIAR: Descobre dinamicamente a URL da API no Codespaces ou Localhost
- */
 function obterBaseURL() {
     const urlAtual = window.location.href;
     if (urlAtual.includes("app.github.dev")) {
@@ -17,9 +14,6 @@ function obterBaseURL() {
 
 const BASE_URL = obterBaseURL();
 
-/**
- * INTEGRAÇÃO REAL COM A API DE LOGIN
- */
 function configurarFormularioLogin() {
     const form = document.getElementById('form-login-paciente');
 
@@ -56,9 +50,6 @@ function configurarFormularioLogin() {
                 // Salva o Token JWT retornado e os dados base do utilizador no LocalStorage
                 localStorage.setItem('token',resultado.token);
                 
-                // Guarda um objeto simples do utilizador para usar na Home e na Dashboard (Nome, etc.)
-                // Se a sua API retornar o objeto do utilizador dentro de resultado.usuario, guardamos ele.
-                // Caso contrário, montamos um objeto base com o e-mail digitado.
                 const dadosUsuario = resultado.usuario || { email: emailDigitado, nome: resultado.nome || "Paciente" };
                 localStorage.setItem(
     'usuario',

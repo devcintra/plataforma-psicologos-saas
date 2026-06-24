@@ -2,10 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
     configurarLogin();
 });
 
-/**
- * Descobre automaticamente a URL da API
- * Funciona no Codespaces e localhost
- */
+
+ //Descobre automaticamente a URL da API
+
 function descobrirBaseURL() {
     const hostname = window.location.hostname;
 
@@ -82,10 +81,7 @@ function configurarLogin() {
                 );
             }
 
-
-            // ===============================
-            // Salva dados da sessão
-            // ===============================
+// Salva dados da sessão
 
             localStorage.setItem(
                 "token",
@@ -125,9 +121,9 @@ function configurarLogin() {
             alert(`Bem-vindo(a), ${resultado.usuario.nome}!`);
 
 
-            // ===============================
+           
             // Redirecionamento por tipo
-            // ===============================
+            
 
             if (resultado.usuario.tipo_usuario === "psicologo") {
 

@@ -2,9 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     inicializarSistemaDeChat();
 });
 
-/* ======================================
-   DESCOBERTA AUTOMÁTICA DA URL
-====================================== */
+/*DESCOBERTA AUTOMÁTICA DA URL*/
 function descobrirBaseURL() {
     const hostname = window.location.hostname;
     if (hostname.includes("github.dev") || hostname.includes("app.github.dev")) {
@@ -15,20 +13,17 @@ function descobrirBaseURL() {
 
 const API_BASE_URL = descobrirBaseURL();
 
-// Variáveis de controle global
-let usuarioTipo = "";       // "paciente" ou "psicologo"
-let idDestinatario = null;   // ID com quem se está a conversar
-let idPerfilLogado = null;  // ID de quem tem a sessão ativa
-let intervaloSync = null;    // Timer do Polling
 
-/* ======================================
-   1. INICIALIZAR CHAT
-====================================== */
+let usuarioTipo = "";       
+let idDestinatario = null;   
+let idPerfilLogado = null; 
+let intervaloSync = null; 
+
+/*1. INICIALIZAR CHAT*/
 async function inicializarSistemaDeChat() {
     const params = new URLSearchParams(window.location.search);
     usuarioTipo = params.get("tipo") || "paciente";
     
-    // Captura o ID do alvo via query string
     idDestinatario = parseInt(params.get("comId") || params.get("id"));
 
     const token = localStorage.getItem("token") || localStorage.getItem("token_jwt");
@@ -45,7 +40,6 @@ async function inicializarSistemaDeChat() {
 
         const dados = await resposta.json();
 
-        // Pega o ID correto baseado no tipo de usuário logado
         if (dados.usuario.tipo_usuario === "paciente") {
             idPerfilLogado = dados.usuario.id_paciente || dados.usuario.id_usuario;
         } else {
@@ -61,7 +55,6 @@ async function inicializarSistemaDeChat() {
             if (e.key === "Enter") capturarEEnviarMensagemAPI();
         });
 
-        // Polling para sincronizar mensagens a cada 3 segundos
         intervaloSync = setInterval(carregarEMostrarMensagensAPI, 3000);
 
         const btnVoltar = document.getElementById("btn-voltar-painel");
@@ -79,9 +72,7 @@ async function inicializarSistemaDeChat() {
     }
 }
 
-/* ======================================
-   2. CABEÇALHO DA INTERFACE
-====================================== */
+/* 2. CABEÇALHO DA INTERFACE*/
 function configurarInterfaceCabeçalho() {
     const nomeInteracao = document.getElementById("interacao-nome");
     if (nomeInteracao) {
@@ -94,9 +85,7 @@ function configurarInterfaceCabeçalho() {
     }
 }
 
-/* ======================================
-   3. BUSCAR MENSAGENS (GET)
-====================================== */
+/*3. BUSCAR MENSAGENS (GET)*/
 async function carregarEMostrarMensagensAPI() {
     if (!idPerfilLogado || !idDestinatario) return;
 
@@ -110,7 +99,6 @@ async function carregarEMostrarMensagensAPI() {
         let idPsicologo;
         let idPaciente;
 
-        // Estrutura as variáveis para casar com a rota do backend: /:id_psicologo/:id_paciente
         if (usuarioTipo === "paciente") {
             idPaciente = idPerfilLogado;
             idPsicologo = idDestinatario;
@@ -141,7 +129,6 @@ async function carregarEMostrarMensagensAPI() {
             const row = document.createElement("div");
             row.className = "msg-row";
 
-            // O backend agora nos diz exatamente quem é o remetente!
             if (msg.remetente === usuarioTipo) {
                 row.classList.add("sent");
             } else {
@@ -170,9 +157,7 @@ async function carregarEMostrarMensagensAPI() {
     }
 }
 
-/* ======================================
-   4. ENVIAR MENSAGEM (POST)
-====================================== */
+/* 4. ENVIAR MENSAGEM (POST)*/
 async function capturarEEnviarMensagemAPI() {
     const input = document.getElementById("input-mensagem-texto");
     if (!input) return;
@@ -184,7 +169,6 @@ async function capturarEEnviarMensagemAPI() {
     input.disabled = true;
 
     try {
-        // Envia APENAS o texto e o destinatário. O backend faz o resto!
         const payloadMensagem = {
             id_destinatario: idDestinatario,
             texto: textoMensagem

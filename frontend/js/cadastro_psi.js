@@ -42,9 +42,6 @@ if (cepInput) {
     cepInput.addEventListener("keydown", apenasNumerosKeydown);
 }
 
-/**
- * INTEGRAÇÃO COM CODESPACES E FLUXO DE ENVIO PARA A API
- */
 document.addEventListener("DOMContentLoaded", () => {
     configurarFluxoCadastroAPI();
 });
@@ -60,7 +57,7 @@ function descubrirBaseURL() {
 const API_BASE_URL = descubrirBaseURL();
 
 function configurarFluxoCadastroAPI() {
-    // ---- PASSO 1 ----
+    // PASSO 1 
     const formPasso1 = document.getElementById("formPasso1");
     if (formPasso1) {
         formPasso1.addEventListener("submit", (e) => {
@@ -87,7 +84,7 @@ function configurarFluxoCadastroAPI() {
         });
     }
 
-    // ---- PASSO 2 ----
+    // PASSO 2 
     const formPasso2 = document.getElementById("formPasso2");
     if (formPasso2) {
         formPasso2.addEventListener("submit", (e) => {
@@ -102,7 +99,7 @@ function configurarFluxoCadastroAPI() {
         });
     }
 
-    // ---- PASSO 3 (ENVIO INTEGRADO AO CONTROLLER DO BACKEND) ----
+    // PASSO 3 
     const btnCadastrarFinal = document.getElementById("btnCadastrar");
     if (btnCadastrarFinal) {
         const formPasso3 = btnCadastrarFinal.closest("form") || document.getElementById("formPasso3");
@@ -118,13 +115,10 @@ function configurarFluxoCadastroAPI() {
                     const p1 = JSON.parse(sessionStorage.getItem("cadastro_psi_p1")) || {};
                     const p2 = JSON.parse(sessionStorage.getItem("cadastro_psi_p2")) || {};
                     
-                    // Tratamento do nome dinâmico baseado no e-mail
                     const parteEmail = p1.email ? p1.email.split("@")[0] : "Profissional";
                     const nomeTratado = "Dr(a). " + parteEmail.charAt(0).toUpperCase() + parteEmail.slice(1);
 
-                    // ====================================================================
-                    // ALINHAMENTO EXATO COM O SEU CONTROLLER (POST /api/auth/cadastro)
-                    // ====================================================================
+                    
                     const payloadPsicologo = {
                         nome: nomeTratado,
                         email: p1.email,
@@ -153,11 +147,6 @@ function configurarFluxoCadastroAPI() {
                             localStorage.setItem("token", resultado.token);
                         }
 
-                        // ====================================================================
-                        // PERSISTÊNCIA COMPATÍVEL COM O SEU DASHBOARD (Prevenção contra nulos)
-                        // ====================================================================
-                        // Caso a API retorne o objeto completo usamos ele, senão estruturamos o objeto
-                        // no formato relacional esperado pelo Sequelize (com o nó 'Usuario')
                         let objetoPerfil = resultado.psicologo || resultado.usuario || resultado.user || null;
 
                         if (!objetoPerfil || (!objetoPerfil.crp && !objetoPerfil.Usuario)) {
